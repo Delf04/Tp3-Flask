@@ -1,0 +1,21 @@
+class,image_count,avg_width,avg_height,min_width,min_height,max_width,max_height,formats,corrupt_files
+churros,200,135,127,88,57,162,140,jpeg,0
+gelato,200,145,122,78,55,162,140,"jpeg, png",0
+currywurst,200,142,121,54,63,162,140,jpeg,0
+crepes,200,134,128,93,79,162,140,jpeg,0
+hot_dog,200,143,121,89,54,162,140,jpeg,0
+shawarma,200,133,129,78,85,162,140,jpeg,0
+fish_and_chips,200,146,119,84,69,162,140,jpeg,0
+pani_puri,199,133,127,78,77,162,140,jpeg,0
+tacos,198,134,126,92,63,162,140,jpeg,0
+poutine,196,140,122,91,65,162,140,jpeg,0
+burger,195,146,121,92,50,162,140,jpeg,0
+empanadas,180,138,125,89,68,162,140,jpeg,0
+pretzel,179,130,131,81,73,162,140,jpeg,0
+falafel,177,130,131,78,85,162,140,jpeg,0
+kebab_(shish_kebab),175,137,125,63,59,162,140,"jpeg, png",0
+pizza_slice,174,146,125,78,72,162,140,"jpeg, png",0
+bánh_mì,160,147,120,70,63,162,140,jpeg,0
+arepas,160,144,121,93,68,162,140,jpeg,0
+pad_thai,160,130,130,93,79,162,140,jpeg,0
+samosas,158,129,131,78,90,162,140,jpeg,0
