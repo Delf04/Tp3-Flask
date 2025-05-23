@@ -4,6 +4,11 @@ import csv
 from datetime import datetime
 import os
 import pandas as pd
+import matplotlib.pyplot as plt  # Import pyplot here
+import os
+import base64
+from io import BytesIO
+
 
 
 
@@ -100,8 +105,7 @@ def cargar_csv():
             db.session.add(persona)
         db.session.commit()
         return redirect('/')
-    except Exception as e:
-        return f"Error al cargar archivo: {str(e)}", 500
+    return f"Error al cargar archivo: {str(e)}", 500
 
 
 @app.route('/graficos')
