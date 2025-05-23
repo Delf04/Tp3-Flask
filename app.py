@@ -1,9 +1,7 @@
 from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
-import pandas as pd
-import io
-import matplotlib.pyplot as plt
-import base64
+import csv
+from datetime import datetime
 import os
 import pandas as pd
 
@@ -30,6 +28,12 @@ class Persona(db.Model):
     age = db.Column(db.Integer)
     gender = db.Column(db.String(20))
     country = db.Column(db.String(100))
+    city = db.Column(db.String(100))
+    education_level = db.Column(db.String(50))
+    employment_status = db.Column(db.String(50))
+    annual_income_usd = db.Column(db.Float)
+    marital_status = db.Column(db.String(50))
+    children_count = db.Column(db.Integer)
     smokes_per_day = db.Column(db.Integer)
     drinks_per_week = db.Column(db.Integer)
     age_started_smoking = db.Column(db.Integer)
@@ -38,11 +42,17 @@ class Persona(db.Model):
     attempts_to_quit_drinking = db.Column(db.Integer)
     has_health_issues = db.Column(db.Boolean)
     mental_health_status = db.Column(db.String(50))
+    exercise_frequency = db.Column(db.String(50))
+    diet_quality = db.Column(db.String(50))
+    sleep_hours = db.Column(db.Float)
+    bmi = db.Column(db.Float)
+    social_support = db.Column(db.String(50))
     therapy_history = db.Column(db.String(50))
 
 
 with app.app_context():
     db.create_all()
+    print("¡Base de datos y tablas creadas correctamente!")
 
 
 
@@ -55,36 +65,36 @@ def index():
 
 @app.route('/cargar', methods=['POST'])
 def cargar_csv():
-    if 'file' not in request.files:
-        return "No se envió archivo", 400
-
     file = request.files['file']
-    if file.filename == '':
-        return "Nombre de archivo vacío", 400
-
-    try:
-        if file.filename.endswith('.csv'):
-            df = pd.read_csv(file)
-        elif file.filename.endswith('.xlsx'):
-            df = pd.read_excel(file)
-        else:
-            return "Formato no soportado. Solo .csv o .xlsx", 400
-
-        for _, row in df.iterrows():
+    if file and file.filename.endswith('.csv'):
+        stream = file.stream.read().decode('utf-8').splitlines()
+        reader = csv.DictReader(stream)
+        for row in reader:
             persona = Persona(
                 id=int(row['id']),
                 name=row['name'],
                 age=int(row['age']),
                 gender=row['gender'],
                 country=row['country'],
+                city=row['city'],
+                education_level=row['education_level'],
+                employment_status=row['employment_status'],
+                annual_income_usd=float(row['annual_income_usd']),
+                marital_status=row['marital_status'],
+                children_count=int(row['children_count']),
                 smokes_per_day=int(row['smokes_per_day']),
                 drinks_per_week=int(row['drinks_per_week']),
                 age_started_smoking=int(row['age_started_smoking']),
                 age_started_drinking=int(row['age_started_drinking']),
                 attempts_to_quit_smoking=int(row['attempts_to_quit_smoking']),
                 attempts_to_quit_drinking=int(row['attempts_to_quit_drinking']),
-                has_health_issues=bool(row['has_health_issues']),
+                has_health_issues=row['has_health_issues'].strip().lower() == 'true',
                 mental_health_status=row['mental_health_status'],
+                exercise_frequency=row['exercise_frequency'],
+                diet_quality=row['diet_quality'],
+                sleep_hours=float(row['sleep_hours']),
+                bmi=float(row['bmi']),
+                social_support=row['social_support'],
                 therapy_history=row['therapy_history']
             )
             db.session.add(persona)
