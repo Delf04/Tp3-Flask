@@ -4,11 +4,25 @@ import pandas as pd
 import io
 import matplotlib.pyplot as plt
 import base64
+import os
+import pandas as pd
+
+
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-app.config['SECRET_KEY'] = 'dev'
 db = SQLAlchemy(app)
+
+
+os.makedirs('static/plots', exist_ok=True)
+
+
+def generate_figure():
+    # Read the CSV file
+    df = pd.read_csv('adicciones.csv')
+    return df
+
 
 class Persona(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -26,13 +40,17 @@ class Persona(db.Model):
     mental_health_status = db.Column(db.String(50))
     therapy_history = db.Column(db.String(50))
 
+
 with app.app_context():
     db.create_all()
+
+
 
 @app.route('/')
 def index():
     personas = Persona.query.all()
     return render_template('index.html', personas=personas)
+
 
 
 @app.route('/cargar', methods=['POST'])
@@ -104,6 +122,8 @@ def graficos():
     alcohol_img = base64.b64encode(img.getvalue()).decode()
 
     return render_template('graficos.html', cig_img=cig_img, alcohol_img=alcohol_img)
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
