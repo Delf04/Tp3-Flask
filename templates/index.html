@@ -1,39 +1,31 @@
-
-{% extends 'base.html' %}
-
-{% block head %}
-    <title>New task manager</title>
-{% endblock %}
-
-{% block body %}
-<div>
-    <h5>Task manager</h5>
-
-    {% if tasks|length < 1 %}
-        <p>You do not have any task created, please add one</p>
-    {% else %}
-        <table>
-            <tr>
-                <th>Task</th>
-                <th>Added date</th>
-                <th>Actions</th>
-            </tr>
-            {% for task in tasks %}
-                <tr>
-                    <td>{{ task.content }}</td>
-                    <td>{{ task.date_created.date() }}</td>
-                    <td>
-                        <a href="/delete/{{ task.id }}">DELETE</a>
-                        <a href="/update/{{ task.id }}">UPDATE</a>
-                    </td>
-                </tr>
-            {% endfor %}
-        </table>
-    {% endif %}
-
-    <form action="/" method="POST">
-        <input type="text" name="content" id="content">
-        <input type="submit" value="Add Task">
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Datos de Personas</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; font-size: 12px; }
+        th, td { border: 1px solid #ddd; padding: 4px; text-align: left; }
+    </style>
+</head>
+<body>
+    <h1>Datos del Dataset</h1>
+    <form action="/cargar" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".csv">
+        <input type="submit" value="Cargar CSV">
     </form>
-</div>
-{% endblock %}
+    <table>
+        <tr>
+            {% for col in personas[0].__table__.columns.keys() %}
+                <th>{{ col }}</th>
+            {% endfor %}
+        </tr>
+        {% for persona in personas %}
+        <tr>
+            {% for col in persona.__table__.columns.keys() %}
+                <td>{{ getattr(persona, col) }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
