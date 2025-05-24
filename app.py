@@ -1,21 +1,13 @@
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
-<<<<<<< Updated upstream
 import csv
 from datetime import datetime
 import os
 import pandas as pd
-import matplotlib.pyplot as plt  # Import pyplot here
+import matplotlib.pyplot as plt  
 import os
 import base64
 from io import BytesIO
-
-
-=======
-import os
-import pandas as pd
->>>>>>> Stashed changes
-
 
 
 app = Flask(__name__)
@@ -59,14 +51,10 @@ class Persona(db.Model):
     social_support = db.Column(db.String(50))
     therapy_history = db.Column(db.String(50))
 
-<<<<<<< Updated upstream
 
 with app.app_context():
     db.create_all()
     print("¡Base de datos y tablas creadas correctamente!")
-=======
->>>>>>> Stashed changes
-
 
 
 @app.route('/')
@@ -74,7 +62,6 @@ def index():
     personas = Persona.query.all()
     return render_template('index.html', personas=personas)
 
-<<<<<<< Updated upstream
 
 
 @app.route('/cargar', methods=['POST'])
@@ -146,9 +133,7 @@ def graficos():
 
     return render_template('graficos.html', cig_img=cig_img, alcohol_img=alcohol_img)
 
-
-=======
->>>>>>> Stashed changes
+main
 
 if __name__ == "__main__":
     app.run(debug=True)
