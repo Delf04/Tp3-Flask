@@ -2,17 +2,15 @@
 <html>
 <head>
     <title>Datos de Personas</title>
-    <style>
-        table { border-collapse: collapse; width: 100%; font-size: 12px; }
-        th, td { border: 1px solid #ddd; padding: 4px; text-align: left; }
-    </style>
 </head>
 <body>
     <h1>Datos del Dataset</h1>
+
     <form action="/cargar" method="post" enctype="multipart/form-data">
         <input type="file" name="file" accept=".csv">
         <input type="submit" value="Cargar CSV">
     </form>
+    {% if personas %}
     <table>
         <tr>
             {% for col in personas[0].__table__.columns.keys() %}
@@ -22,10 +20,14 @@
         {% for persona in personas %}
         <tr>
             {% for col in persona.__table__.columns.keys() %}
-                <td>{{ getattr(persona, col) }}</td>
+                <td>{{ persona[col] }}</td>
             {% endfor %}
         </tr>
         {% endfor %}
     </table>
+    {% else %}
+    <p>No hay datos cargados.</p>
+{% endif %}changes
 </body>
 </html>
+
