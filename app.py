@@ -1,6 +1,5 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
-<<<<<<< Updated upstream
 import csv
 from datetime import datetime
 import os
@@ -11,10 +10,6 @@ import base64
 from io import BytesIO
 
 
-=======
-import os
-import pandas as pd
->>>>>>> Stashed changes
 
 
 
@@ -59,13 +54,10 @@ class Persona(db.Model):
     social_support = db.Column(db.String(50))
     therapy_history = db.Column(db.String(50))
 
-<<<<<<< Updated upstream
 
 with app.app_context():
     db.create_all()
     print("¡Base de datos y tablas creadas correctamente!")
-=======
->>>>>>> Stashed changes
 
 
 
@@ -74,7 +66,6 @@ def index():
     personas = Persona.query.all()
     return render_template('index.html', personas=personas)
 
-<<<<<<< Updated upstream
 
 
 @app.route('/cargar', methods=['POST'])
@@ -86,16 +77,10 @@ def cargar_csv():
         for row in reader:
             persona = Persona(
                 id=int(row['id']),
-                name=row['name'],
                 age=int(row['age']),
                 gender=row['gender'],
-                country=row['country'],
-                city=row['city'],
                 education_level=row['education_level'],
-                employment_status=row['employment_status'],
                 annual_income_usd=float(row['annual_income_usd']),
-                marital_status=row['marital_status'],
-                children_count=int(row['children_count']),
                 smokes_per_day=int(row['smokes_per_day']),
                 drinks_per_week=int(row['drinks_per_week']),
                 age_started_smoking=int(row['age_started_smoking']),
@@ -107,7 +92,6 @@ def cargar_csv():
                 exercise_frequency=row['exercise_frequency'],
                 diet_quality=row['diet_quality'],
                 sleep_hours=float(row['sleep_hours']),
-                bmi=float(row['bmi']),
                 social_support=row['social_support'],
                 therapy_history=row['therapy_history']
             )
@@ -147,8 +131,6 @@ def graficos():
     return render_template('graficos.html', cig_img=cig_img, alcohol_img=alcohol_img)
 
 
-=======
->>>>>>> Stashed changes
 
 if __name__ == "__main__":
     app.run(debug=True)
