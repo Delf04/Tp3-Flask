@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 import csv
 from datetime import datetime
@@ -19,23 +19,14 @@ os.makedirs('static/plots', exist_ok=True)
 
 
 def generate_figure():
-    # Read the CSV file
     df = pd.read_csv('adicciones.csv')
     return df
 
 
 class Persona(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
     age = db.Column(db.Integer)
     gender = db.Column(db.String(20))
-    country = db.Column(db.String(100))
-    city = db.Column(db.String(100))
-    education_level = db.Column(db.String(50))
-    employment_status = db.Column(db.String(50))
-    annual_income_usd = db.Column(db.Float)
-    marital_status = db.Column(db.String(50))
-    children_count = db.Column(db.Integer)
     smokes_per_day = db.Column(db.Integer)
     drinks_per_week = db.Column(db.Integer)
     age_started_smoking = db.Column(db.Integer)
@@ -44,12 +35,10 @@ class Persona(db.Model):
     attempts_to_quit_drinking = db.Column(db.Integer)
     has_health_issues = db.Column(db.Boolean)
     mental_health_status = db.Column(db.String(50))
-    exercise_frequency = db.Column(db.String(50))
-    diet_quality = db.Column(db.String(50))
-    sleep_hours = db.Column(db.Float)
-    bmi = db.Column(db.Float)
     social_support = db.Column(db.String(50))
     therapy_history = db.Column(db.String(50))
+
+
 
 
 with app.app_context():
@@ -73,30 +62,18 @@ def cargar_csv():
         for row in reader:
             persona = Persona(
                 id=int(row['id']),
-                name=row['name'],
-                age=int(row['age']),
-                gender=row['gender'],
-                country=row['country'],
-                city=row['city'],
-                education_level=row['education_level'],
-                employment_status=row['employment_status'],
-                annual_income_usd=float(row['annual_income_usd']),
-                marital_status=row['marital_status'],
-                children_count=int(row['children_count']),
-                smokes_per_day=int(row['smokes_per_day']),
-                drinks_per_week=int(row['drinks_per_week']),
-                age_started_smoking=int(row['age_started_smoking']),
-                age_started_drinking=int(row['age_started_drinking']),
-                attempts_to_quit_smoking=int(row['attempts_to_quit_smoking']),
-                attempts_to_quit_drinking=int(row['attempts_to_quit_drinking']),
-                has_health_issues=row['has_health_issues'].strip().lower() == 'true',
-                mental_health_status=row['mental_health_status'],
-                exercise_frequency=row['exercise_frequency'],
-                diet_quality=row['diet_quality'],
-                sleep_hours=float(row['sleep_hours']),
-                bmi=float(row['bmi']),
-                social_support=row['social_support'],
-                therapy_history=row['therapy_history']
+                age=int(row['Edades']),
+                gender=row['Genero'],
+                smokes_per_day=int(row['Cigarrillos por dia']),
+                drinks_per_week=int(row['Tragos por semana']),
+                age_started_smoking=int(row['Edad que comenzo a fumar']),
+                age_started_drinking=int(row['Edad que comenzo a beber']),
+                attempts_to_quit_smoking=int(row['Intentos de dejar de fumar']),
+                attempts_to_quit_drinking=int(row['Intentos de dejar de beber']),
+                has_health_issues=row['Problemas de salud'].strip().lower() == 'true',
+                mental_health_status=row['Estado de salud mental'],
+                social_support=row['Apoyo social'],
+                therapy_history=row['Historial de terapia']
             )
             db.session.add(persona)
         db.session.commit()
@@ -133,7 +110,6 @@ def graficos():
 
     return render_template('graficos.html', cig_img=cig_img, alcohol_img=alcohol_img)
 
-main
 
 if __name__ == "__main__":
     app.run(debug=True)
