@@ -1,11 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="stylesheet" href="static/css/style.css">
 
     <title>Datos de Personas</title>
 </head>
 
 <body>
+    <h1>Datos del Dataset</h1>
+    <form action="/cargar" method="post" enctype="multipart/form-data"></form>
+
+    
+    {% if personas %}
+    <table>
+        <tr>
+            {% for col in personas[0].__table__.columns.keys() %}
+                <th>{{ col }}</th>
+            {% endfor %}
+        </tr>
+        {% for persona in personas %}
+        <tr>
+            {% for col in persona.__table__.columns.keys() %}
+                <td>{{ persona[col] }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+
+    <p>No hay datos cargados.</p>
+{% endif %}
 
 </body>
 </html>
