@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <link rel="stylesheet" href="static/css/style.css">
 
@@ -7,30 +7,37 @@
 </head>
 
 <body>
-    <h1>Datos del Dataset</h1>
-    <form action="/cargar" method="post" enctype="multipart/form-data"></form>
+    <div class="container">
+        <header>
+            <h1>Datos del Dataset</h1>
+        </header>
 
-    
-    {% if personas %}
-    <table>
-        <tr>
-            {% for col in personas[0].__table__.columns.keys() %}
-                <th>{{ col }}</th>
-            {% endfor %}
-        </tr>
-        {% for persona in personas %}
-        <tr>
-            {% for col in persona.__table__.columns.keys() %}
-                <td>{{ persona[col] }}</td>
-            {% endfor %}
-        </tr>
-        {% endfor %}
-    </table>
-    {% else %}
-
-    <p>No hay datos cargados.</p>
-{% endif %}
-
+        <section class="tabla-personas">
+            {% if personas %}
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            {% for col in personas[0].__table__.columns.keys() %}
+                                <th>{{ col }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for persona in personas %}
+                        <tr>
+                            {% for col in persona.__table__.columns.keys() %}
+                                <td>{{ persona[col] }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="no-datos">No hay datos cargados.</p>
+            {% endif %}
+        </section>
+    </div>
 </body>
 </html>
-
