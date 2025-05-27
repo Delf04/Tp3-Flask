@@ -18,7 +18,6 @@ os.makedirs('static/plots', exist_ok=True)
 
 
 def generate_figure():
-    # Read the CSV file
     df = pd.read_csv('adicciones.csv')
     return df
 
@@ -27,13 +26,6 @@ class Persona(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     age = db.Column(db.Integer)
     gender = db.Column(db.String(20))
-    country = db.Column(db.String(100))
-    city = db.Column(db.String(100))
-    education_level = db.Column(db.String(50))
-    employment_status = db.Column(db.String(50))
-    annual_income_usd = db.Column(db.Float)
-    marital_status = db.Column(db.String(50))
-    children_count = db.Column(db.Integer)
     smokes_per_day = db.Column(db.Integer)
     drinks_per_week = db.Column(db.Integer)
     age_started_smoking = db.Column(db.Integer)
@@ -42,10 +34,6 @@ class Persona(db.Model):
     attempts_to_quit_drinking = db.Column(db.Integer)
     has_health_issues = db.Column(db.Boolean)
     mental_health_status = db.Column(db.String(50))
-    exercise_frequency = db.Column(db.String(50))
-    diet_quality = db.Column(db.String(50))
-    sleep_hours = db.Column(db.Float)
-    bmi = db.Column(db.Float)
     social_support = db.Column(db.String(50))
     therapy_history = db.Column(db.String(50))
 
@@ -66,22 +54,6 @@ def cargar_csv():
         for row in reader:
             persona = Persona(
                 id=int(row['id']),
-                age=int(row['age']),
-                gender=row['gender'],
-                education_level=row['education_level'],
-                annual_income_usd=float(row['annual_income_usd']),
-                smokes_per_day=int(row['smokes per day']),
-                drinks_per_week=int(row['drinks_per_week']),
-                age_started_smoking=int(row['age_started_smoking']),
-                age_started_drinking=int(row['age_started_drinking']),
-                attempts_to_quit_smoking=int(row['attempts_to_quit_smoking']),
-                attempts_to_quit_drinking=int(row['attempts_to_quit_drinking']),
-                has_health_issues=row['has_health_issues'].strip().lower() == 'true',
-                mental_health_status=row['mental_health_status'],
-                diet_quality=row['diet_quality'],
-                sleep_hours=float(row['sleep_hours']),
-                social_support=row['social_support'],
-                therapy_history=row['therapy_history']
             )
             db.session.add(persona)
         db.session.commit()
