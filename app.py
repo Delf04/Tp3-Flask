@@ -4,11 +4,10 @@ import csv
 from datetime import datetime
 import os
 import pandas as pd
-import matplotlib.pyplot as plt  # Import pyplot here
+import matplotlib.pyplot as plt  
 import os
 import base64
 from io import BytesIO
-
 
 
 
@@ -29,7 +28,6 @@ def generate_figure():
 
 class Persona(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
     age = db.Column(db.Integer)
     gender = db.Column(db.String(20))
     country = db.Column(db.String(100))
@@ -55,11 +53,6 @@ class Persona(db.Model):
     therapy_history = db.Column(db.String(50))
 
 
-with app.app_context():
-    db.create_all()
-    print("¡Base de datos y tablas creadas correctamente!")
-
-
 
 @app.route('/')
 def index():
@@ -81,7 +74,7 @@ def cargar_csv():
                 gender=row['gender'],
                 education_level=row['education_level'],
                 annual_income_usd=float(row['annual_income_usd']),
-                smokes_per_day=int(row['smokes_per_day']),
+                smokes_per_day=int(row['smokes per day']),
                 drinks_per_week=int(row['drinks_per_week']),
                 age_started_smoking=int(row['age_started_smoking']),
                 age_started_drinking=int(row['age_started_drinking']),
@@ -89,7 +82,6 @@ def cargar_csv():
                 attempts_to_quit_drinking=int(row['attempts_to_quit_drinking']),
                 has_health_issues=row['has_health_issues'].strip().lower() == 'true',
                 mental_health_status=row['mental_health_status'],
-                exercise_frequency=row['exercise_frequency'],
                 diet_quality=row['diet_quality'],
                 sleep_hours=float(row['sleep_hours']),
                 social_support=row['social_support'],
@@ -104,32 +96,32 @@ def cargar_csv():
 @app.route('/graficos')
 def graficos():
     personas = Persona.query.all()
-    edades = [p.age for p in personas]
     cigarrillos = [p.smokes_per_day for p in personas]
     tragos = [p.drinks_per_week for p in personas]
 
     plt.figure(figsize=(10, 5))
-    plt.hist(cigarrillos, bins=10, color='orange', edgecolor='black')
-    plt.title('Cigarrillos por Día')
+    plt.hist(cigarrillos, bins=25, color='grey', edgecolor='black')
+    plt.title('Cigarrillos diario')
     plt.xlabel('Cigarrillos')
     plt.ylabel('Frecuencia')
-    img = io.BytesIO()
+    img = BytesIO()
     plt.savefig(img, format='png')
     img.seek(0)
     cig_img = base64.b64encode(img.getvalue()).decode()
+    plt.close()
 
     plt.figure(figsize=(10, 5))
     plt.hist(tragos, bins=10, color='blue', edgecolor='black')
-    plt.title('Tragos por Semana')
-    plt.xlabel('Tragos')
+    plt.title('Consumo de alcohol semanalmente')
+    plt.xlabel('Consumo')
     plt.ylabel('Frecuencia')
-    img = io.BytesIO()
+    img = BytesIO()
     plt.savefig(img, format='png')
     img.seek(0)
     alcohol_img = base64.b64encode(img.getvalue()).decode()
-
+    plt.close()
+    plt.show()
     return render_template('graficos.html', cig_img=cig_img, alcohol_img=alcohol_img)
-
 
 
 if __name__ == "__main__":

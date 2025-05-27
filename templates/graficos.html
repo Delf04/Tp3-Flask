@@ -1,12 +1,21 @@
 <!doctype html>
 <html>
-<head><title>Gráficos</title></head>
+<head>
+    <title>Gráficos</title>
+    <link rel="stylesheet" href="static/css/graficostyle.css">
+
+</head>
 <body>
-<h1>Gráficos</h1>
-<h2>Distribución de Edades</h2>
-<img src="data:image/png;base64,{{ edad_grafico }}" />
-<h2>Edad vs Ingreso</h2>
-<img src="data:image/png;base64,{{ ingreso_grafico }}" />
-<a href="/">Volver</a>
+    <h1>Gráficos</h1>
+    
+    <h2>frecuencia de cigarrillos consumidos por dia</h2>
+    <img src="data:image/png;base64,{{ cig_img }}" alt="Grafico de cigarrillos por dia" />
+    
+    <h2>Consumo de alcohol por semana</h2>
+    
+    <img src="data:image/png;base64,{{ alcohol_img }}" alt="Grafico de consumo de alcohol" />
+    
+    
+    <a href="/">Volver</a>
 </body>
 </html>

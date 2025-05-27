@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="stylesheet" href="static/css/style.css">
+
     <title>Datos de Personas</title>
 </head>
+
 <body>
     <h1>Datos del Dataset</h1>
-
-    <form action="/cargar" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".csv">
-        <input type="submit" value="Cargar CSV">
-    </form>
+    <form action="/cargar" method="post" enctype="multipart/form-data"></form>
 
     
     {% if personas %}
