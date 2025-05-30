@@ -2,13 +2,26 @@
 <html>
 <head>
     <title>Análisis de Datos</title>
-    <link rel="stylesheet" href="static/css/analisistyle.css">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/analisistyle.css') }}">
 </head>
 <body>
     <div class="grafico">
-        <h1>graficos</h1>
+        <h1>Gráficos de análisis</h1>
         <img src="data:image/png;base64,{{ plot_url }}" alt="Gráfico de análisis">
+    </div>
+
+    <div class="estadisticas">
+        <h2>Estadísticas básicas</h2>
+        <ul>
+            {% for k, v in estadisticas.items() %}
+                <li><strong>{{ k }}:</strong> {{ v }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="resumen-tabla">
+        <h2>Resumen estadístico completo</h2>
+        {{ resumen_tabla | safe }}
     </div>
 </body>
 </html>
