@@ -6,11 +6,7 @@ import seaborn as sns
 import os
 import base64
 from io import BytesIO
-<<<<<<< Updated upstream
-
-=======
 import csv
->>>>>>> Stashed changes
 
 # Configuración inicial
 app = Flask(__name__)
@@ -19,7 +15,6 @@ db = SQLAlchemy(app)
 
 os.makedirs('static/plots', exist_ok=True)
 
-<<<<<<< Updated upstream
 
 def generate_figure():
     # Read the CSV file
@@ -27,9 +22,6 @@ def generate_figure():
     return df
 
 
-=======
-# Modelo de la base de datos
->>>>>>> Stashed changes
 class Persona(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
@@ -58,15 +50,11 @@ class Persona(db.Model):
     therapy_history = db.Column(db.String(50))
 
 
-<<<<<<< Updated upstream
 with app.app_context():
     db.create_all()
     print("¡Base de datos y tablas creadas correctamente!")
 
 
-=======
-# Página principal
->>>>>>> Stashed changes
 @app.route('/')
 def index():
     personas = Persona.query.all()
@@ -81,36 +69,6 @@ def cargar_csv():
         stream = file.stream.read().decode('utf-8').splitlines()
         reader = csv.DictReader(stream)
         for row in reader:
-<<<<<<< Updated upstream
-            persona = Persona(
-                id=int(row['id']),
-                name=row['name'],
-                age=int(row['age']),
-                gender=row['gender'],
-                country=row['country'],
-                city=row['city'],
-                education_level=row['education_level'],
-                employment_status=row['employment_status'],
-                annual_income_usd=float(row['annual_income_usd']),
-                marital_status=row['marital_status'],
-                children_count=int(row['children_count']),
-                smokes_per_day=int(row['smokes_per_day']),
-                drinks_per_week=int(row['drinks_per_week']),
-                age_started_smoking=int(row['age_started_smoking']),
-                age_started_drinking=int(row['age_started_drinking']),
-                attempts_to_quit_smoking=int(row['attempts_to_quit_smoking']),
-                attempts_to_quit_drinking=int(row['attempts_to_quit_drinking']),
-                has_health_issues=row['has_health_issues'].strip().lower() == 'true',
-                mental_health_status=row['mental_health_status'],
-                exercise_frequency=row['exercise_frequency'],
-                diet_quality=row['diet_quality'],
-                sleep_hours=float(row['sleep_hours']),
-                bmi=float(row['bmi']),
-                social_support=row['social_support'],
-                therapy_history=row['therapy_history']
-            )
-            db.session.add(persona)
-=======
             try:
                 persona = Persona(
                     id=int(row['id']),
@@ -131,7 +89,6 @@ def cargar_csv():
                 db.session.add(persona)
             except Exception as e:
                 print(f"Error al procesar fila: {row['id']} -> {e}")
->>>>>>> Stashed changes
         db.session.commit()
         return redirect('/')
     return "Archivo no válido", 400
@@ -140,29 +97,6 @@ def cargar_csv():
 # Ruta para gráficos
 @app.route('/graficos')
 def graficos():
-<<<<<<< Updated upstream
-    personas = Persona.query.all()
-    edades = [p.age for p in personas]
-    cigarrillos = [p.smokes_per_day for p in personas]
-    tragos = [p.drinks_per_week for p in personas]
-
-    plt.figure(figsize=(10, 5))
-    plt.hist(cigarrillos, bins=10, color='orange', edgecolor='black')
-    plt.title('Cigarrillos por Día')
-    plt.xlabel('Cigarrillos')
-    plt.ylabel('Frecuencia')
-    img = io.BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-    cig_img = base64.b64encode(img.getvalue()).decode()
-
-    plt.figure(figsize=(10, 5))
-    plt.hist(tragos, bins=10, color='blue', edgecolor='black')
-    plt.title('Tragos por Semana')
-    plt.xlabel('Tragos')
-    plt.ylabel('Frecuencia')
-    img = io.BytesIO()
-=======
     df = pd.read_sql(db.session.query(Persona).statement, db.engine)
 
     fig, axes = plt.subplots(6, 2, figsize=(18, 24))
@@ -227,14 +161,10 @@ def graficos():
 
     # Guardar imagen
     img = BytesIO()
->>>>>>> Stashed changes
     plt.savefig(img, format='png')
     img.seek(0)
     alcohol_img = base64.b64encode(img.getvalue()).decode()
 
-<<<<<<< Updated upstream
-    return render_template('graficos.html', cig_img=cig_img, alcohol_img=alcohol_img)
-=======
     return render_template('graficos.html', plot_url=plot_url)
 
 # Ruta para análisis
@@ -294,9 +224,7 @@ def analisis_de_datos():
     resumen_tabla = df[['age', 'smokes_per_day', 'drinks_per_week', 'bmi']].describe().round(2).to_html(classes="table table-striped")
 
     return render_template('analisis_de_datos.html', plot_url=plot_url, resumen_tabla=resumen_tabla, estadisticas=estadisticas)
->>>>>>> Stashed changes
 
-main
 
 # Main
 if __name__ == "__main__":
