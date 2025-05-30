@@ -1,21 +1,28 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-    <title>Gráficos</title>
-    <link rel="stylesheet" href="static/css/graficostyle.css">
-
+    <title>Análisis de Consumo</title>
+    <style>
+        .container {
+            text-align: center;
+            margin: 20px;
+        }
+        .grafico {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        h1 {
+            color: #333;
+            font-family: Arial, sans-serif;
+        }
+    </style>
 </head>
 <body>
-    <h1>Gráficos</h1>
-    
-    <h2>frecuencia de cigarrillos consumidos por dia</h2>
-    <img src="data:image/png;base64,{{ cig_img }}" alt="Grafico de cigarrillos por dia" />
-    
-    <h2>Consumo de alcohol por semana</h2>
-    
-    <img src="data:image/png;base64,{{ alcohol_img }}" alt="Grafico de consumo de alcohol" />
-    
-    
-    <a href="/">Volver</a>
+    <div class="container">
+        <h1>Análisis Comparativo de Consumo</h1>
+        <img src="data:image/png;base64,{{ plot_url }}" alt="Gráficos comparativos" class="grafico">
+    </div>
 </body>
 </html>
