@@ -6,6 +6,7 @@
 <body>
     <h1>Datos del Dataset</h1>
 
+<<<<<<< Updated upstream
     <form action="/cargar" method="post" enctype="multipart/form-data">
         <input type="file" name="file" accept=".csv">
         <input type="submit" value="Cargar CSV">
@@ -28,6 +29,91 @@
     {% else %}
     <p>No hay datos cargados.</p>
 {% endif %}changes
+=======
+            <p>
+              Además del consumo, se recopilan factores asociados como el índice de masa corporal (BMI), la existencia de problemas de salud, el estado de salud mental, el nivel de apoyo social con el que cuenta la persona y si ha tenido experiencias previas con terapias.
+            </p>
+
+            <p>
+              Esta información permite analizar patrones, identificar grupos de riesgo y visualizar correlaciones entre hábitos de consumo y condiciones de salud. Aunque los datos simulan escenarios realistas, son completamente ficticios y han sido generados únicamente con fines educativos y de práctica en análisis de datos, desarrollo web y visualización estadística.
+            </p>
+
+            <p>
+              La base de datos no contiene nombres reales ni información identificable de personas reales. 
+            </p>
+
+        </section>
+        <section class="tabla-personas">
+          <h2 id="dataset">Tabla de Personas con Adicciones</h2>
+            {% if personas %}
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            {% for col in personas[0].__table__.columns.keys() %}
+                                <th>{{ col }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for persona in personas %}
+                        <tr>
+                            {% for col in persona.__table__.columns.keys() %}
+                                <td>{{ persona[col] }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="no-datos">No hay datos cargados.</p>
+            {% endif %}
+        </section>
+    </div>
+    <section>
+      <h2 id="graficos"> Graficos de Consumo de Cigarrillos y Alcohol </h2>
+      <p>
+        A continuación, se presentan gráficos que muestran el consumo de cigarrillos y alcohol por parte de las personas en la base de datos. Estos gráficos permiten visualizar patrones y tendencias en el consumo, facilitando un análisis comparativo entre diferentes grupos demográficos.
+      </p>
+      <form action="/graficos" method="get">
+        <button type="submit">Ver gráficos</button>
+      </form>
+
+    </section>
+
+    <section>
+      <h2 id="analisis_de_datos"> Análisis de Datos</h2>
+      <p>
+        La metodología de análisis de esta base de datos se basa en técnicas estadísticas y de visualización de datos. Se utilizarán herramientas como Python, Pandas y Matplotlib para explorar y analizar los datos, identificando patrones y correlaciones significativas.
+      </p>
+      <form action="/analisis_de_datos" method="get">
+        <button type="submit">Análisis de datos</button>
+      </form>        
+    </section>
+
+    <footer>
+        <div class="footer">
+            <div>
+                <h6>
+                    @2025 Taller de Internet
+                </h6>
+                <p>
+                    Desarrollado por Simón Canorio y Delfina Taira
+                </p>
+            </div>
+            <div>
+                <div class="social-networks">
+                    <img id="instagram" src="Imagenes/iconoo ig.avif"> 
+                    <img id="email" src="Imagenes/email.png">
+                    <img id="x" src="Imagenes/x.webp">
+                </div>
+                
+            </div>
+            
+        </div>
+    </footer>
+>>>>>>> Stashed changes
 </body>
 </html>
 
