@@ -1,11 +1,8 @@
 from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 import csv
-from datetime import datetime
-import os
 import pandas as pd
 import matplotlib.pyplot as plt  
-import os
 import base64
 from io import BytesIO
 import seaborn as sns
@@ -15,8 +12,6 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db = SQLAlchemy(app)
 
-
-os.makedirs('static/plots', exist_ok=True)
 
 
 def generate_figure():
@@ -76,8 +71,6 @@ def graficos():
     plt.title('Cigarrillos diario')
     plt.xlabel('Cigarrillos')
     plt.ylabel('Frecuencia')
-    
-
 
 
     tragos = [p.drinks_per_week for p in personas]
@@ -97,12 +90,13 @@ def graficos():
     return render_template('graficos.html', plot_url=plot_url)
 
 
+
+
 @app.route('/consumos')
 def consumo_vs_salud():
     df = pd.read_sql(db.session.query(Persona).statement, db.engine)
     
     plt.figure(figsize=(12, 5))
-    
     plt.subplot(1, 2, 1)
     sns.regplot(x='smokes_per_day', y='bmi', data=df, scatter_kws={'alpha':0.4})
     plt.title('Cigarrillos vs BMI') #es una relacion de cuanto fuma una persona en base al bmi
@@ -117,12 +111,12 @@ def consumo_vs_salud():
     plt.ylabel('Cigarrillos por día')
     
     img = BytesIO()
-    plt.savefig(img, format='png')
+    plt.savefig(img, format='png', bbox_inches='tight', dpi=100)
     img.seek(0)
     plot_url = base64.b64encode(img.getvalue()).decode('utf-8')
     plt.close()
-    
-    return render_template('fumadores.html', plot_url=plot_url)
+
+    return render_template('analisis_de_datos.html', plot_url=plot_url)
 
 
 if __name__ == "__main__":
