@@ -41,9 +41,10 @@ class Persona(db.Model):
     therapy_history = db.Column(db.String(50))
 
 
+
 @app.route('/')
 def index():
-    personas = Persona.query.all()
+    personas = Persona.query.limit(100).all()
     return render_template('index.html', personas=personas)
 
 
