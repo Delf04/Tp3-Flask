@@ -78,8 +78,6 @@ def graficos():
     plt.ylabel('Frecuencia')
     
 
-
-
     tragos = [p.drinks_per_week for p in personas]
     plt.subplot(1,2,2)
     plt.hist(tragos, bins=10, color='blue', edgecolor='black')
@@ -101,8 +99,8 @@ def graficos():
 def consumo_vs_salud():
     df = pd.read_sql(db.session.query(Persona).statement, db.engine)
     
+
     plt.figure(figsize=(12, 5))
-    
     plt.subplot(1, 2, 1)
     sns.regplot(x='smokes_per_day', y='bmi', data=df, scatter_kws={'alpha':0.4})
     plt.title('Cigarrillos vs BMI') #es una relacion de cuanto fuma una persona en base al bmi
@@ -123,6 +121,16 @@ def consumo_vs_salud():
     plt.close()
     
     return render_template('fumadores.html', plot_url=plot_url)
+
+
+@app.route('/estadisticas')
+def estadisticas():
+    df = pd.read_sql(db.session.query(Persona).statement, db.engine)
+
+    # Calcular estadísticas descriptivas
+    stats = df.describe()
+
+    return render_template('estadisticas.html', stats=stats)
 
 
 if __name__ == "__main__":
