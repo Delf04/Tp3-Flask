@@ -1,11 +1,8 @@
 from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 import csv
-from datetime import datetime
-import os
 import pandas as pd
 import matplotlib.pyplot as plt  
-import os
 import base64
 from io import BytesIO
 import seaborn as sns
@@ -14,9 +11,6 @@ import seaborn as sns
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db = SQLAlchemy(app)
-
-
-os.makedirs('static/plots', exist_ok=True)
 
 
 def generate_figure():
@@ -72,7 +66,7 @@ def graficos():
 
     cigarrillos = [p.smokes_per_day for p in personas]
     plt.subplot(1,2,1)
-    plt.hist(cigarrillos, bins=25, color='grey', edgecolor='black')
+    plt.hist(cigarrillos, bins=10, color='grey', edgecolor='black')
     plt.title('Cigarrillos diario')
     plt.xlabel('Cigarrillos')
     plt.ylabel('Frecuencia')
@@ -95,25 +89,22 @@ def graficos():
     return render_template('graficos.html', plot_url=plot_url)
 
 
+
+
 @app.route('/consumos')
 def consumo_vs_salud():
-    df = pd.read_sql(db.session.query(Persona).statement, db.engine)
-    
+    personas = Persona.query.filter(Persona.smokes_per_day, Persona.bmi, Persona.gender.in_(["Male", "Female"])).all()
+    dia_fumar = [persona.smokes_per_day for persona in personas]
+    imc = [persona.bmi for persona in personas]
+
 
     plt.figure(figsize=(12, 5))
-    plt.subplot(1, 2, 1)
-    sns.regplot(x='smokes_per_day', y='bmi', data=df, scatter_kws={'alpha':0.4})
+    sns.regplot(x = dia_fumar, y=imc, color='salmon', scatter_kws={'alpha':0.4}, line_kws={'color': 'black'})
     plt.title('Cigarrillos vs BMI') #es una relacion de cuanto fuma una persona en base al bmi
     plt.xlabel('Cigarrillos por día')
     plt.ylabel('Índice de Masa Corporal')
 
-    
-    plt.subplot(1, 2, 2)
-    sns.boxplot(x='gender', y='smokes_per_day', data=df, palette='pastel')
-    plt.title('Consumo por Género')
-    plt.xlabel('Género')
-    plt.ylabel('Cigarrillos por día')
-    
+        
     img = BytesIO()
     plt.savefig(img, format='png')
     img.seek(0)
@@ -123,14 +114,43 @@ def consumo_vs_salud():
     return render_template('fumadores.html', plot_url=plot_url)
 
 
-@app.route('/estadisticas')
-def estadisticas():
-    df = pd.read_sql(db.session.query(Persona).statement, db.engine)
+@app.route('/max_min')
+def analisis_max_min():
+    personas = Persona.query.all()
+    edades_fumar = [p.age_started_smoking for p in personas ]
+        
+    plt.figure(figsize=(12, 5))
+        
+    edad_max_fumar = max(edades_fumar)
+    edad_min_fumar = min(edades_fumar)
+    edad_prom_fumar = sum(edades_fumar) / len(edades_fumar)
+            
+    categorias = ['Máxima edad', 'Mínima edad', 'Edad promedio']
+    valores = [edad_max_fumar, edad_min_fumar, edad_prom_fumar]
+    colores = ['lightcoral', 'lightgreen', 'lightblue']
 
-    # Calcular estadísticas descriptivas
-    stats = df.describe()
+    bars = plt.bar(categorias, valores, color=colores)
+    
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2., height,
+            f'{int(height)} años',
+                ha='center', va='bottom')
 
-    return render_template('estadisticas.html', stats=stats)
+
+
+    plt.title('Edad de Inicio en el Consumo de Tabaco')
+    plt.ylabel('Edad (años)')
+    plt.grid(True, axis='y', linestyle='--', alpha=0.7)
+        
+
+    img = BytesIO()
+    plt.savefig(img, format='png', bbox_inches='tight')
+    img.seek(0)
+    plot_url = base64.b64encode(img.getvalue()).decode('utf-8')
+    plt.close()
+
+    return render_template('maxymin.html', plot_url=plot_url)
 
 
 if __name__ == "__main__":
