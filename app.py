@@ -7,6 +7,7 @@ import os
 import base64
 from io import BytesIO
 import seaborn as sns
+import csv
 
 # Configuración inicial
 app = Flask(__name__)
