@@ -2,12 +2,12 @@
 <html>
 <head>
     <title>Análisis de Datos</title>
-    <link rel="stylesheet" href="static/css/analisistyle.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/analisistyle.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>Análisis de Consumos</h1>
-        <img src="data:image/png;base64,{{ plot_url }}" alt="Resultados del análisis" class="grafico">
+    <div class="grafico">
+        <h1>Gráficos de análisis</h1>
+        <img src="data:image/png;base64,{{ plot_url }}" alt="Gráfico de análisis">
     </div>
 
     <div class="estadisticas">
