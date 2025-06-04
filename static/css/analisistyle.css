@@ -2,12 +2,14 @@
     text-align: center;
     margin: 20px;
 }
+
 .grafico {
     max-width: 100%;
     border: 1px solid #ddd;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     margin: 20px 0;
 }
+
 h1 {
     color: #333;
     font-family: Arial, sans-serif;

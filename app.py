@@ -47,7 +47,6 @@ def index():
 
 
 
-
 # Carga de CSV
 @app.route('/cargar', methods=['POST'])
 def cargar_csv():
@@ -81,15 +80,11 @@ def cargar_csv():
     return "Archivo no válido", 400
 
 
-
-
-
 # Ruta para gráficos
 @app.route('/graficos')
 def graficos():
-    df = pd.read_sql(db.session.query(Persona).statement, db.engine)
-
-    axes = plt.subplots(6, 2, figsize=(18, 24))
+    df = pd.read_sql(db.session.query(Persona).statement, db.engine) 
+    fig, axes = plt.subplots(6, 2, figsize=(18, 24))
     plt.subplots_adjust(hspace=0.4)
 
     # 1. Pie chart fumadores por género

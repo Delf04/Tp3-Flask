@@ -9,5 +9,19 @@
         <h1>Análisis de Consumos</h1>
         <img src="data:image/png;base64,{{ plot_url }}" alt="Resultados del análisis" class="grafico">
     </div>
+
+    <div class="estadisticas">
+        <h2>Estadísticas básicas</h2>
+        <ul>
+            {% for k, v in estadisticas.items() %}
+                <li><strong>{{ k }}:</strong> {{ v }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="resumen-tabla">
+        <h2>Resumen estadístico completo</h2>
+        {{ resumen_tabla | safe }}
+    </div>
 </body>
 </html>
