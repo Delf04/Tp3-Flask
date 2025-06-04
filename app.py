@@ -97,7 +97,7 @@ def cargar_csv():
 def graficos():
     df = pd.read_sql(db.session.query(Persona).statement, db.engine)
 
-    axes = plt.subplots(6, 2, figsize=(18, 24))
+    fig, axes = plt.subplots(6, 2, figsize=(18, 24))
     plt.subplots_adjust(hspace=0.4)
 
     
@@ -207,6 +207,7 @@ def graficos():
 
 
 
+
 # Ruta para análisis
 @app.route('/analisis_de_datos')
 def analisis_de_datos():
@@ -230,7 +231,7 @@ def analisis_de_datos():
     
     
     # Creamos una figura con varios gráficos
-    axes = plt.subplots(3, 2, figsize=(14, 12))
+    fig, axes = plt.subplots(6, 2, figsize=(18, 24))
     plt.subplots_adjust(hspace=0.4)
 
     

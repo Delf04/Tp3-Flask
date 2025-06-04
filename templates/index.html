@@ -11,37 +11,43 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="index.html">Adicciones</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="index.html">Base de Datos</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="graficos.html">Graficos</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="analisis_de_datos.html">Analisis de Datos</a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
+                                                                  <!-- el navbar -->
+    <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('index') }}">Adicciones</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="{{ url_for('index') }}">Base de Datos</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('graficos') }}">Graficos</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('analisis_de_datos') }}">Analisis de Datos</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+
+                                                            <!--contenido de la pagina principal -->
+
     <div class="container">
         <header>
-            <h1>Datos del Dataset</h1>
+            <h1 class="titulo_principal">Datos del Dataset</h1>
         </header>
+        
         <section class="descripcion">
             <p>
               Esta base de datos contiene información detallada sobre personas con distintos tipos de adicciones, centrada principalmente en el consumo de cigarrillos y alcohol. 
               Cada registro representa a una persona individual e incluye datos como edad, género, número de cigarrillos fumados por día, bebidas alcohólicas consumidas por semana, edad en la que comenzó el hábito, número de intentos por dejarlo, entre otros indicadores clave.
             </p>
-
+            
             <p>
               Además del consumo, se recopilan factores asociados como el índice de masa corporal (BMI), la existencia de problemas de salud, el estado de salud mental, el nivel de apoyo social con el que cuenta la persona y si ha tenido experiencias previas con terapias.
             </p>
@@ -53,11 +59,16 @@
             <p>
               La base de datos no contiene nombres reales ni información identificable de personas reales. 
             </p>
-            <a href="../instance/test.db">Descargar base de datos completa</a>
 
+            <a class="link-csv" href="../instance/test.db">Descargar base de datos completa</a>
         </section>
+
+
+
+
         <section class="tabla-personas">
           <h2 id="dataset">Tabla de Personas con Adicciones</h2>
+
             {% if personas %}
             <div class="table-wrapper">
                 <table>
@@ -83,22 +94,28 @@
             <p class="no-datos">No hay datos cargados.</p>
             {% endif %}
         </section>
-    </div>
-    <section>
+
+
+    <section class="graficos.container">
       <h2 id="graficos"> Graficos de Consumo de Cigarrillos y Alcohol </h2>
-      <p>
-        A continuación, se presentan gráficos que muestran el consumo de cigarrillos y alcohol por parte de las personas en la base de datos. Estos gráficos permiten visualizar patrones y tendencias en el consumo, facilitando un análisis comparativo entre diferentes grupos demográficos.
-      </p>
-      <a href="graficos.html">Ver Gráficos</a>
+        <p class="descripcion-graficos">  
+            A continuación, se presentan gráficos que muestran el consumo de cigarrillos y alcohol por parte de las personas en la base de datos. Estos gráficos permiten visualizar patrones y tendencias en el consumo, facilitando un análisis comparativo entre diferentes grupos demográficos.
+          <br><a class="graficos-link" href="{{ url_for('graficos') }}">Ver Gráficos</a>
+        </p>
+      
     </section>
+
+
     <section>
       <h2 id="analisis_de_datos"> Análisis de Datos</h2>
-      <p>
-        La metodología de análisis de esta base de datos se basa en técnicas estadísticas y de visualización de datos. Se utilizarán herramientas como Python, Pandas y Matplotlib para explorar y analizar los datos, identificando patrones y correlaciones significativas.
-      </p>
-      <a href="analisis_de_datos.html">Ver Análisis de Datos</a>
+        <p class="descripcion-analisis">
+            La metodología de análisis de esta base de datos se basa en técnicas estadísticas y de visualización de datos. Se utilizarán herramientas como Python, Pandas y Matplotlib para explorar y analizar los datos, identificando patrones y correlaciones significativas.
+          <br><a class= "analisis-link" href="{{ url_for('analisis_de_datos') }}">Ver Análisis de Datos</a>
+        </p>
     </section>
-    <footer>
+
+    </div>
+     <footer>
         <div class="footer">
             <div>
                 <h6>
@@ -107,17 +124,9 @@
                 <p>
                     Desarrollado por Simón Canorio y Delfina Taira
                 </p>
-            </div>
-            <div>
-                <div class="social-networks">
-                    <img id="instagram" src="Imagenes/iconoo ig.avif"> 
-                    <img id="email" src="Imagenes/email.png">
-                    <img id="x" src="Imagenes/x.webp">
-                </div>
-                
-            </div>
-            
+            </div>                
+          </div>      
         </div>
-    </footer>
+     </footer>
 </body>
 </html>
