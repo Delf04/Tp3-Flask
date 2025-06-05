@@ -36,10 +36,10 @@
 
     
     
-    <div class="grafico">
+    <div class="container">
         <h1>Gráficos de análisis</h1>
-        <img src="data:image/png;base64,{{ plot_url }}" alt="Gráfico de análisis">
-    </div>
+        <img class="img" src="data:image/png;base64,{{ plot_url }}" alt="Gráfico de análisis">
+
 
     <div class="estadisticas">
         <h2>Estadísticas básicas</h2>
@@ -54,5 +54,21 @@
         <h2>Resumen estadístico completo</h2>
         {{ resumen_tabla | safe }}
     </div>
+</div>
+
+
+     <footer>
+        <div class="footer">
+            <div>
+                <h6>
+                    @2025 Taller de Internet
+                </h6>
+                <p>
+                    Desarrollado por Simón Canorio y Delfina Taira
+                </p>
+            </div>
+
+
+
 </body>
 </html>

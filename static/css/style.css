@@ -184,6 +184,7 @@ tr:nth-child(even) {
 
     h1 {
         font-size: 1.8em;
+        padding-top: 20px;
     }
 
     table {

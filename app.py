@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import os
 import base64
 from io import BytesIO
 import seaborn as sns
@@ -14,7 +13,6 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db = SQLAlchemy(app)
 
-os.makedirs('static/plots', exist_ok=True)
 
 
 def generate_figure():
@@ -80,12 +78,15 @@ def cargar_csv():
     return "Archivo no válido", 400
 
 
+
+
+
 # Ruta para gráficos
 @app.route('/graficos')
 def graficos():
     df = pd.read_sql(db.session.query(Persona).statement, db.engine) 
-    fig, axes = plt.subplots(6, 2, figsize=(18, 24))
-    plt.subplots_adjust(hspace=0.4)
+    fig, axes = plt.subplots(6, 2, figsize=(15, 24))
+    plt.subplots_adjust(hspace=0.5)
 
     # 1. Pie chart fumadores por género
     smoker_gender = df[df['smokes_per_day'] > 0]['gender'].value_counts()
@@ -153,6 +154,13 @@ def graficos():
 
     return render_template('graficos.html', plot_url=plot_url)
 
+
+
+
+
+
+
+
 # Ruta para análisis
 @app.route('/analisis_de_datos')
 def analisis_de_datos():
@@ -171,7 +179,7 @@ def analisis_de_datos():
     }
 
     # Creamos una figura con varios gráficos
-    fig, axes = plt.subplots(3, 2, figsize=(14, 12))
+    fig, axes = plt.subplots(3, 2, figsize=(12, 12))
     plt.subplots_adjust(hspace=0.4)
 
     # 1. Histograma de edades
