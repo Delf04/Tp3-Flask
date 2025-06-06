@@ -98,16 +98,6 @@ def graficos():
     axes[0, 1].pie(drinker_gender, labels=drinker_gender.index, autopct='%1.1f%%', colors=sns.color_palette('muted'))
     axes[0, 1].set_title('Tomadores por género')
 
-    # 3. Line chart top 10 que más fuman vs edad
-    top_smokers = df.sort_values(by='smokes_per_day', ascending=False).head(10)
-    axes[1, 0].plot(top_smokers['id'].astype(str), top_smokers['age'], marker='o')
-    axes[1, 0].set_title('Top 10 fumadores vs Edad')
-    axes[1, 0].set_xlabel('ID Persona')
-    axes[1, 0].set_ylabel('Edad')
-
-    # 4. Boxplot consumo de alcohol por género
-    sns.boxplot(x='gender', y='drinks_per_week', data=df, ax=axes[1, 1])
-    axes[1, 1].set_title('Alcohol por semana según género')
 
     # 5. Displot IMC
     sns.histplot(df['bmi'], bins=20, kde=True, ax=axes[2, 0], color='orange')
@@ -137,13 +127,6 @@ def graficos():
     sns.boxplot(x='social_support', y='smokes_per_day', data=df, ax=axes[5, 0])
     axes[5, 0].set_title('Apoyo social vs Cigarrillos por día')
 
-    # 12. Histograma de horas de sueño (si estuviera en tu modelo)
-    # Si no tenés esa columna, podés cambiar este gráfico por otro útil
-    if 'sleep_hours' in df.columns:
-        sns.histplot(df['sleep_hours'], bins=10, ax=axes[5, 1])
-        axes[5, 1].set_title('Horas de sueño')
-    else:
-        axes[5, 1].axis('off')
 
     # Guardar imagen
     img = BytesIO()
