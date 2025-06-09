@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
 import base64
 from io import BytesIO
 import seaborn as sns
@@ -42,15 +41,33 @@ class Persona(db.Model):
     social_support = db.Column(db.String(50))
     therapy_history = db.Column(db.String(50))
 
+inicializado = False
+modelo_fumador = None
+modelo_tomador = None
+encoder_gender = None
+encoder_mental = None
+
+
+@app.before_request
+def limpiar_una_vez():
+    global inicializado
+    if not inicializado:
+        db.session.query(Persona).delete()
+        db.session.commit()
+        inicializado = True
+
 @app.route('/')
 def index():
-    personas = Persona.query.limit(100).all()
-    return render_template('index.html', personas=personas)
+    personas = Persona.query.limit(50).all()
+    datos_cargados = len(personas) > 0
+    return render_template('index.html', personas=personas, datos_cargados=datos_cargados)
 
 @app.route('/cargar', methods=['POST'])
 def cargar_csv():
     file = request.files['file']
-    if file and file.filename.endswith('.csv'):
+
+    # Verificar que el archivo fue subido y que se llama exactamente "adicciones.csv"
+    if file and file.filename == 'adicciones.csv':
         stream = file.stream.read().decode('utf-8').splitlines()
         reader = csv.DictReader(stream)
         for row in reader:
@@ -72,10 +89,23 @@ def cargar_csv():
                 )
                 db.session.add(persona)
             except Exception as e:
-                print(f"Error al procesar fila: {row['id']} -> {e}")
+                print(f"Error al procesar fila: {row.get('id', 'sin id')} -> {e}")
         db.session.commit()
+        # Agregá al final de cargar_csv():
+        global modelo_fumador, modelo_tomador, encoder_gender, encoder_mental
+        modelo_fumador, modelo_tomador, encoder_gender, encoder_mental = entrenar_modelos()
+
         return redirect('/')
-    return "Archivo no válido", 400
+    else:
+        return "El archivo debe llamarse exactamente 'adicciones.csv'", 400
+        
+
+@app.route('/dataset_completo')
+def dataset_completo():
+    df = pd.read_csv('adicciones.csv')  # Asegurate que esta ruta sea correcta
+    tabla_html = df.to_html(classes='table table-bordered table-striped', index=False)
+    return render_template('dataset_completo.html', tabla_html=tabla_html)
+
 
 @app.route('/graficos')
 def graficos():
@@ -169,6 +199,10 @@ def analisis_de_datos():
 def entrenar_modelos():
     df = pd.read_sql(db.session.query(Persona).statement, db.engine)
 
+    if df.empty:
+        print("⚠️ No hay datos para entrenar los modelos.")
+        return None, None, None, None
+
     # Variables objetivo
     df['es_fumador_frecuente'] = df['smokes_per_day'] > 10
     df['es_tomador_frecuente'] = df['drinks_per_week'] > 7  # umbral ejemplo
@@ -209,11 +243,11 @@ def entrenar_modelos():
     return modelo_fumador, modelo_tomador, le_gender, le_mental
 
 # Entrena ambos modelos dentro del contexto Flask para evitar errores con db.session
-with app.app_context():
-    modelo_fumador, modelo_tomador, encoder_gender, encoder_mental = entrenar_modelos()
 
 @app.route('/predict', methods=['GET', 'POST'])
 def predict():
+    if modelo_fumador is None or modelo_tomador is None:
+        return "Modelos no disponibles. Cargá el archivo CSV primero desde la página principal.", 400
     if request.method == 'POST':
         try:
             age = int(request.form['age'])

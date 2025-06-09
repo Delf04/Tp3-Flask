@@ -30,13 +30,14 @@
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('analisis_de_datos') }}">Analisis de Datos</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('predict') }}">Calculadora</a>
+            </li>
           </ul>
         </div>
       </div>
     </nav>
 
-
-                                                            <!--contenido de la pagina principal -->
 
     <div class="container">
         <header>
@@ -60,40 +61,51 @@
             <p>
               La base de datos no contiene nombres reales ni información identificable de personas reales. 
             </p>
-
-            <a class="link-csv" href="../instance/test.db">Descargar base de datos completa</a>
-        </section>
-
-
-        <section class="tabla-personas">
-          <h2 id="dataset">Tabla de Personas con Adicciones</h2>
-
-
-            {% if personas %}
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            {% for col in personas[0].__table__.columns.keys() %}
-                                <th>{{ col }}</th>
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for persona in personas %}
-                        <tr>
-                            {% for col in persona.__table__.columns.keys() %}
-                                <td>{{ persona[col] }}</td>
-                            {% endfor %}
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <p class="no-datos">No hay datos cargados.</p>
+            {% if datos_cargados %}
+              <p><a href="{{ url_for('dataset_completo') }}">Ver dataset completo</a></p>
             {% endif %}
+
         </section>
+
+
+{% if datos_cargados %}
+<section class="tabla-personas">
+  <h2 id="dataset">Tabla de Personas con Adicciones</h2>
+  <p>Aca hay una breve demostracion del dataset con el que trabajamos</p>
+  <div class="table-wrapper">
+      <table class="table table-bordered table-striped">
+          <thead>
+              <tr>
+                  {% for col in personas[0].__table__.columns.keys() %}
+                      <th>{{ col }}</th>
+                  {% endfor %}
+              </tr>
+          </thead>
+          <tbody>
+              {% for persona in personas %}
+              <tr>
+                  {% for col in persona.__table__.columns.keys() %}
+                      <td>{{ persona[col] }}</td>
+                  {% endfor %}
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </div>
+</section>
+{% else %}
+<section class="tabla-personas">
+  <h2 id="dataset">Tabla de Personas con Adicciones</h2>
+  <p class="alert alert-warning">No hay datos cargados. Por favor, sube un archivo CSV para visualizar la información.</p>
+          <form action="{{ url_for('cargar_csv') }}" method="post" enctype="multipart/form-data">
+          <div class="mb-3">
+            <input class="form-control" type="file" name="file" accept=".csv" required>
+          </div>
+          <button class="btn btn-primary" type="submit">Cargar CSV</button>
+        </form>
+
+</section>
+{% endif %}
 
 
     <section class="graficos.container">
@@ -114,6 +126,13 @@
         </p>
     </section>
 
+    <section>
+      <h2 id="calculadora"> Calculadora de Riesgo</h2>
+        <p class="descripcion-calculadora">
+          A continuación tienen a su disposicion una calculadora, que puede predecir, en base a ciertos parametros dados por el usuario, su riesgo de caer en adicciones al tabaco y al alcohol
+          <br><a class= "calculadora" href="{{ url_for('predict') }}">Ver Calculadora</a>
+        </p>
+    </section>
     </div>
 
 </div>
