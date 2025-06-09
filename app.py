@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 import pandas as pd
 import matplotlib.pyplot as plt
 import base64
+import seaborn as sns
 from io import BytesIO
 import csv
 import os
