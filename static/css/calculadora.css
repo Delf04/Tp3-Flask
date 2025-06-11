@@ -55,3 +55,17 @@ input[type="submit"] {
     color: #2d3436;
 }
 
+@media (max-width: 576px) {
+    .formulario {
+        padding: 15px;
+    }
+
+    .titulo {
+        font-size: 1.4rem;
+    }
+
+    .contenedor-resultado {
+        padding: 1rem;
+        margin: 1rem;
+    }
+}
