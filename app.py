@@ -19,11 +19,12 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db = SQLAlchemy(app)
 
+
 # Asegurar que la carpeta plots exista
 os.makedirs('plots', exist_ok=True)
 
 def generate_figure():
-    df = pd.read_csv('adicciones_sin_bmi.csv')  # archivo sin bmi
+    df = pd.read_csv('adicciones.csv')  # archivo sin bmi
     return df
 
 class Persona(db.Model):
@@ -52,6 +53,7 @@ encoder_mental = None
 def limpiar_una_vez():
     global inicializado
     if not inicializado:
+        db.create_all()
         db.session.query(Persona).delete()
         db.session.commit()
         inicializado = True
@@ -107,29 +109,14 @@ def dataset_completo():
     return render_template('dataset_completo.html', tabla_html=tabla_html)
 
 
+
+# Ruta para gráficos
 @app.route('/graficos')
 def graficos():
-    df = pd.read_sql(db.session.query(Persona).statement, db.engine)
-    fig, axes = plt.subplots(5, 2, figsize=(15, 20))
+    df = pd.read_sql(db.session.query(Persona).statement, db.engine) 
+    fig, axes = plt.subplots(6, 2, figsize=(15, 24))
     plt.subplots_adjust(hspace=0.5)
 
-    # Gráficos
-    smoker_gender = df[df['smokes_per_day'] > 0]['gender'].value_counts()
-    axes[0, 0].pie(smoker_gender, labels=smoker_gender.index, autopct='%1.1f%%', colors=sns.color_palette('pastel'))
-    axes[0, 0].set_title('Fumadores por género')
-
-    drinker_gender = df[df['drinks_per_week'] > 0]['gender'].value_counts()
-    axes[0, 1].pie(drinker_gender, labels=drinker_gender.index, autopct='%1.1f%%', colors=sns.color_palette('muted'))
-    axes[0, 1].set_title('Tomadores por género')
-
-    top_smokers = df.sort_values(by='smokes_per_day', ascending=False).head(10)
-    axes[1, 0].plot(top_smokers['id'].astype(str), top_smokers['age'], marker='o')
-    axes[1, 0].set_title('Top 10 fumadores vs Edad')
-    axes[1, 0].set_xlabel('ID Persona')
-    axes[1, 0].set_ylabel('Edad')
-
-    sns.boxplot(x='gender', y='drinks_per_week', data=df, ax=axes[1, 1])
-    axes[1, 1].set_title('Alcohol por semana según género')
 
     sns.boxplot(x='mental_health_status', y='smokes_per_day', data=df, ax=axes[2, 0])
     axes[2, 0].set_title('Cigarrillos por día vs Salud mental')
@@ -149,6 +136,16 @@ def graficos():
     sns.boxplot(x='social_support', y='smokes_per_day', data=df, ax=axes[4, 1])
     axes[4, 1].set_title('Apoyo social vs Cigarrillos por día')
 
+    # 11. Apoyo social vs consumo cigarrillos
+    sns.boxplot(x='social_support', y='smokes_per_day', data=df, ax=axes[5, 0])
+    axes[5, 0].set_title('Apoyo social vs Cigarrillos por día')
+
+
+    # Guardar imagen
+    img = BytesIO()
+    plt.savefig(img, format='png')
+    img.seek(0)
+    plot_url = base64.b64encode(img.getvalue()).decode()
     plt.savefig('plots/graficos.png')
     plt.close()
 
@@ -157,6 +154,14 @@ def graficos():
 
     return render_template('graficos.html', plot_url=plot_url)
 
+
+
+
+
+
+
+
+# Ruta para análisis
 @app.route('/analisis_de_datos')
 def analisis_de_datos():
     df = pd.read_sql(db.session.query(Persona).statement, db.engine)
@@ -169,6 +174,8 @@ def analisis_de_datos():
         'Alcohol promedio': round(df['drinks_per_week'].mean(), 2),
     }
 
+    # Creamos una figura con varios gráficos
+    fig, axes = plt.subplots(3, 2, figsize=(12, 12))
     fig, axes = plt.subplots(2, 2, figsize=(12, 10))
     plt.subplots_adjust(hspace=0.4)
 

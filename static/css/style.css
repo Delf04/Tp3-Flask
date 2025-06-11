@@ -90,11 +90,22 @@ body {
 }
 
 
-
-
-
-
-
+                                    /*calculadora */
+#calculadora{
+    text-align: center;
+    padding-top: 20px;
+    border-top: 2px solid #eee;
+}
+.descripcion-calculadora{
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-left: 4px solid #2a512e;
+}
+.calculadora{
+    color: #2a512e;
+    text-decoration: none;
+    font-weight: bold;
+}
 
 
 
@@ -132,8 +143,6 @@ th {
 tr:nth-child(even) {
     background-color: #f5f8fa;
 }
-
-
 
 
 
