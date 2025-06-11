@@ -8,12 +8,12 @@
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4 text-center">Calculadora de Riesgo de Adicciones</h2>
+<div>
+    <h2 class="titulo">Calculadora de Riesgo de Adicciones</h2>
     <form method="post" action="{{ url_for('predict') }}" class="formulario p-4 shadow rounded bg-light">
         <div class="mb-3">
             <label class="form-label">Edad</label>
-            <input type="number" name="age" class="form-control" required>
+            <input type="number" name="age" class="form-control" min="0" required>
         </div>
 
         <div class="mb-3">
@@ -27,32 +27,32 @@
 
         <div class="mb-3">
             <label class="form-label">Cigarrillos por día</label>
-            <input type="number" name="smokes_per_day" class="form-control" required>
+            <input type="number" name="smokes_per_day" class="form-control" min="0" required>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Alcohol por semana</label>
-            <input type="number" name="drinks_per_week" class="form-control" required>
+            <input type="number" name="drinks_per_week" class="form-control" min="0" required>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Edad de inicio al fumar</label>
-            <input type="number" name="age_started_smoking" class="form-control" required>
+            <input type="number" name="age_started_smoking" class="form-control" min="0" min="0" required>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Edad de inicio al beber</label>
-            <input type="number" name="age_started_drinking" class="form-control" required>
+            <input type="number" name="age_started_drinking" class="form-control" min="0" required>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Intentos para dejar de fumar</label>
-            <input type="number" name="attempts_to_quit_smoking" class="form-control" required>
+            <input type="number" name="attempts_to_quit_smoking" class="form-control" min="0" required>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Intentos para dejar de beber</label>
-            <input type="number" name="attempts_to_quit_drinking" class="form-control" required>
+            <input type="number" name="attempts_to_quit_drinking" class="form-control" min="0" required>
         </div>
 
         <div class="mb-3">
@@ -77,4 +77,6 @@
         </div>
     </form>
 </div>
+
+
 {% endblock %}

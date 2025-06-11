@@ -4,11 +4,14 @@
 
 {% block content %}
 <header>
-    <h1 class="titulo_principal", id="inicio">Estudio sobre Adicciones: Cigarrillos y Bebidas Alcohólicas</h1>
+    <h1 id="inicio">Estudio sobre Adicciones: Cigarrillos y Bebidas Alcohólicas</h1>
 </header>
 
+
+
+
 <section class="descripcion">
-    <h4>📊 Sobre la Base de Datos</h4>
+    <h4>Sobre la Base de Datos</h4>
     <p>
         Esta base de datos fue diseñada con fines educativos y contiene información simulada sobre personas con distintos tipos de adicciones, especialmente al tabaco y al alcohol. Cada registro representa a un individuo e incluye variables como edad, género, cantidad de cigarrillos diarios, consumo semanal de alcohol, edad de inicio y número de intentos por dejar el hábito.
 
@@ -16,9 +19,9 @@
 
         <br>Esta información permite identificar grupos de riesgo, analizar patrones de consumo y construir modelos predictivos. Todos los datos son ficticios y no contienen información personal ni identificable.
     </p>
-    {% if datos_cargados %}
+    
+    
         <p><a href="{{ url_for('dataset_completo') }}", class="graficos-link">Ver dataset completo</a></p>
-    {% endif %}
 </section>
 
 <section class="tabla-personas">
@@ -57,8 +60,12 @@
     {% endif %}
 </section>
 
-<section class="graficos container">
-    <h2 id="graficos">📈 Gráficos de Consumo de Cigarrillos y Alcohol</h2>
+
+
+
+
+<section>
+    <h2 id="graficos">Gráficos de Consumo de Cigarrillos y Alcohol</h2>
     <p class="descripcion-graficos">
       Esta sección presenta gráficos que ilustran el consumo de cigarrillos y alcohol entre las personas registradas en la base de datos. A través de estas visualizaciones, es posible observar patrones de comportamiento, identificar diferencias entre grupos según edad o género, y detectar posibles tendencias generales en los hábitos de consumo.
         <br><a class="graficos-link" href="{{ url_for('graficos') }}">Ver Gráficos</a>
@@ -66,8 +73,13 @@
     </p>
 </section>
 
+
+
+
+
+
 <section>
-    <h2 id="analisis_de_datos">📈 Análisis de Datos</h2>
+    <h2 id="analisis_de_datos">Análisis de Datos</h2>
     <p class="descripcion-analisis">
         La metodología de análisis de esta base de datos se basa en técnicas estadísticas y de visualización de datos. Se utilizarán herramientas como Python, Pandas y Matplotlib para explorar y analizar los datos, identificando patrones y correlaciones significativas.
         <br><a class="analisis-link" href="{{ url_for('analisis_de_datos') }}">Ver Análisis de Datos</a>

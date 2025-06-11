@@ -1,3 +1,28 @@
+.body {
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+}
+.contenedor-resultado{
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 20px;
+    box-sizing: border-box;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+.titulo {
+    text-align: center;
+    padding-bottom: 20px;
+}
+
+.boton{
+    text-decoration: none;
+    color: rgb(0, 0, 0);
+}
+
+
+
 .formulario {
     max-width: 600px;
     margin: auto;

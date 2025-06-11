@@ -20,11 +20,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db = SQLAlchemy(app)
 
 
-# Asegurar que la carpeta plots exista
 os.makedirs('plots', exist_ok=True)
 
 def generate_figure():
-    df = pd.read_csv('adicciones.csv')  # archivo sin bmi
+    df = pd.read_csv('adicciones.csv')  
     return df
 
 class Persona(db.Model):
@@ -59,8 +58,8 @@ def limpiar_una_vez():
         inicializado = True
 
 @app.route('/')
-def index():
-    personas = Persona.query.limit(50).all()
+def index(limit=15):
+    personas = Persona.query.limit(limit).all()
     datos_cargados = len(personas) > 0
     return render_template('index.html', personas=personas, datos_cargados=datos_cargados)
 
@@ -68,7 +67,6 @@ def index():
 def cargar_csv():
     file = request.files['file']
 
-    # Verificar que el archivo fue subido y que se llama exactamente "adicciones.csv"
     if file and file.filename == 'adicciones.csv':
         stream = file.stream.read().decode('utf-8').splitlines()
         reader = csv.DictReader(stream)
@@ -93,7 +91,8 @@ def cargar_csv():
             except Exception as e:
                 print(f"Error al procesar fila: {row.get('id', 'sin id')} -> {e}")
         db.session.commit()
-        # Agregá al final de cargar_csv():
+
+
         global modelo_fumador, modelo_tomador, encoder_gender, encoder_mental
         modelo_fumador, modelo_tomador, encoder_gender, encoder_mental = entrenar_modelos()
 
@@ -104,7 +103,7 @@ def cargar_csv():
 
 @app.route('/dataset_completo')
 def dataset_completo():
-    df = pd.read_csv('adicciones.csv')  # Asegurate que esta ruta sea correcta
+    df = pd.read_csv('adicciones.csv')  
     tabla_html = df.to_html(classes='table table-bordered table-striped', index=False)
     return render_template('dataset_completo.html', tabla_html=tabla_html)
 
@@ -192,7 +191,7 @@ def analisis_de_datos():
         'Alcohol promedio': round(df['drinks_per_week'].mean(), 2),
     }
 
-    # Gráficos para análisis de patrones no usados en /graficos
+    # Gráficos para análisis de patrones 
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
     plt.subplots_adjust(hspace=0.4, wspace=0.3)
 
@@ -237,12 +236,12 @@ def entrenar_modelos():
     df = pd.read_sql(db.session.query(Persona).statement, db.engine)
 
     if df.empty:
-        print("⚠️ No hay datos para entrenar los modelos.")
+        print("No hay datos para entrenar los modelos.")
         return None, None, None, None
 
     # Variables objetivo
     df['es_fumador_frecuente'] = df['smokes_per_day'] > 10
-    df['es_tomador_frecuente'] = df['drinks_per_week'] > 7  # umbral ejemplo
+    df['es_tomador_frecuente'] = df['drinks_per_week'] > 7  
 
     # Variables seleccionadas
     features = ['age', 'gender', 'smokes_per_day', 'age_started_smoking',
@@ -251,13 +250,11 @@ def entrenar_modelos():
     X_fumador = df[features].copy()
     y_fumador = df['es_fumador_frecuente'].astype(int)
 
-    # Para tomador, puedes usar las mismas variables menos smokes_per_day (porque es para fumar)
     features_tomador = ['age', 'gender', 'smokes_per_day', 'age_started_drinking',
                        'attempts_to_quit_drinking', 'has_health_issues', 'mental_health_status']
     X_tomador = df[features_tomador].copy()
     y_tomador = df['es_tomador_frecuente'].astype(int)
 
-    # Codificar variables categóricas (mismo encoder para consistencia)
     le_gender = LabelEncoder()
     X_fumador['gender'] = le_gender.fit_transform(X_fumador['gender'])
     X_tomador['gender'] = le_gender.transform(X_tomador['gender'])
@@ -266,11 +263,9 @@ def entrenar_modelos():
     X_fumador['mental_health_status'] = le_mental.fit_transform(X_fumador['mental_health_status'])
     X_tomador['mental_health_status'] = le_mental.transform(X_tomador['mental_health_status'])
 
-    # Codificar booleanos (has_health_issues)
     X_fumador['has_health_issues'] = X_fumador['has_health_issues'].astype(int)
     X_tomador['has_health_issues'] = X_tomador['has_health_issues'].astype(int)
 
-    # Entrenar modelos
     modelo_fumador = LogisticRegression(max_iter=1000)
     modelo_fumador.fit(X_fumador, y_fumador)
 
@@ -279,7 +274,7 @@ def entrenar_modelos():
 
     return modelo_fumador, modelo_tomador, le_gender, le_mental
 
-# Entrena ambos modelos dentro del contexto Flask para evitar errores con db.session
+
 
 @app.route('/predict', methods=['GET', 'POST'])
 def predict():

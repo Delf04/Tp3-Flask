@@ -14,6 +14,11 @@ body {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
 }
+.descripcion{
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-left: 4px solid #2a512e;
+}
 
 .img  {
     max-width: 100%;
@@ -36,14 +41,6 @@ h2{
     font-size: 1.2em;
     color: #888888;
     padding: 40px 0;
-}
-.footer h6 {
-    margin: 0;
-    font-size: 0.95em;
-}
-
-.footer p {
-    margin: 4px 0 0 0;
 }
 
 
@@ -83,15 +80,6 @@ h2{
         align-items: flex-start;
         text-align: left;
         padding: 16px;
-    }
-
-    .footer h6 {
-        font-size: 1em;
-    }
-
-    .footer p {
-        font-size: 0.9em;
-        margin-top: 6px;
     }
 
 
