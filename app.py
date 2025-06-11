@@ -114,32 +114,56 @@ def dataset_completo():
 @app.route('/graficos')
 def graficos():
     df = pd.read_sql(db.session.query(Persona).statement, db.engine) 
-    fig, axes = plt.subplots(6, 2, figsize=(15, 24))
-    plt.subplots_adjust(hspace=0.5)
+    fig, axes = plt.subplots(6, 2, figsize=(18, 28))
+    plt.subplots_adjust(hspace=0.5, wspace=0.3)
 
+    # 1. Cigarrillos por día vs Salud mental
+    sns.boxplot(x='mental_health_status', y='smokes_per_day', data=df, ax=axes[0, 0])
+    axes[0, 0].set_title('Cigarrillos por día vs Salud mental')
 
-    sns.boxplot(x='mental_health_status', y='smokes_per_day', data=df, ax=axes[2, 0])
-    axes[2, 0].set_title('Cigarrillos por día vs Salud mental')
+    # 2. Edad de inicio al fumar
+    sns.histplot(df['age_started_smoking'].dropna(), bins=15, ax=axes[0, 1], color='orange')
+    axes[0, 1].set_title('Edad de inicio al fumar')
 
-    sns.histplot(df['age_started_smoking'].dropna(), bins=15, ax=axes[2, 1])
-    axes[2, 1].set_title('Edad de inicio al fumar')
+    # 3. Edad de inicio al beber alcohol
+    sns.histplot(df['age_started_drinking'].dropna(), bins=15, ax=axes[1, 0], color='green')
+    axes[1, 0].set_title('Edad de inicio al beber alcohol')
 
-    sns.histplot(df['age_started_drinking'].dropna(), bins=15, ax=axes[3, 0])
-    axes[3, 0].set_title('Edad de inicio al beber alcohol')
+    # 4. Intentos de dejar de fumar
+    sns.countplot(x='attempts_to_quit_smoking', data=df, ax=axes[1, 1], palette='Blues')
+    axes[1, 1].set_title('Intentos de dejar de fumar')
 
-    sns.countplot(x='attempts_to_quit_smoking', data=df, ax=axes[3, 1])
-    axes[3, 1].set_title('Intentos de dejar de fumar')
+    # 5. Intentos de dejar de tomar
+    sns.countplot(x='attempts_to_quit_drinking', data=df, ax=axes[2, 0], palette='Purples')
+    axes[2, 0].set_title('Intentos de dejar de tomar')
 
-    sns.countplot(x='attempts_to_quit_drinking', data=df, ax=axes[4, 0])
-    axes[4, 0].set_title('Intentos de dejar de tomar')
+    # 6. Apoyo social vs Cigarrillos por día
+    sns.boxplot(x='social_support', y='smokes_per_day', data=df, ax=axes[2, 1])
+    axes[2, 1].set_title('Apoyo social vs Cigarrillos por día')
 
-    sns.boxplot(x='social_support', y='smokes_per_day', data=df, ax=axes[4, 1])
-    axes[4, 1].set_title('Apoyo social vs Cigarrillos por día')
+    # 7. Distribución de género
+    sns.countplot(x='gender', data=df, ax=axes[3, 0], palette='Set2')
+    axes[3, 0].set_title('Distribución de Género')
 
-    # 11. Apoyo social vs consumo cigarrillos
-    sns.boxplot(x='social_support', y='smokes_per_day', data=df, ax=axes[5, 0])
-    axes[5, 0].set_title('Apoyo social vs Cigarrillos por día')
+    # 8. Salud mental vs Intentos de dejar de fumar
+    sns.boxplot(x='mental_health_status', y='attempts_to_quit_smoking', data=df, ax=axes[3, 1])
+    axes[3, 1].set_title('Salud mental vs Intentos de dejar de fumar')
 
+    # 9. Relación entre edad y consumo de alcohol
+    sns.scatterplot(x='age', y='drinks_per_week', data=df, ax=axes[4, 0], alpha=0.6)
+    axes[4, 0].set_title('Edad vs Consumo de Alcohol por Semana')
+
+    # 10. Distribución de personas con problemas de salud
+    sns.countplot(x='has_health_issues', data=df, ax=axes[4, 1], palette='Set1')
+    axes[4, 1].set_title('Distribución de Problemas de Salud')
+
+    # 11. Terapia previa vs Intentos de dejar de tomar
+    sns.boxplot(x='therapy_history', y='attempts_to_quit_drinking', data=df, ax=axes[5, 0])
+    axes[5, 0].set_title('Terapia previa vs Intentos de dejar de tomar')
+
+    # 12. Relación entre cigarrillos y alcohol
+    sns.scatterplot(x='smokes_per_day', y='drinks_per_week', data=df, ax=axes[5, 1], alpha=0.6)
+    axes[5, 1].set_title('Cigarrillos por día vs Alcohol por semana')
 
     # Guardar imagen
     img = BytesIO()
@@ -155,12 +179,6 @@ def graficos():
     return render_template('graficos.html', plot_url=plot_url)
 
 
-
-
-
-
-
-
 # Ruta para análisis
 @app.route('/analisis_de_datos')
 def analisis_de_datos():
@@ -174,22 +192,34 @@ def analisis_de_datos():
         'Alcohol promedio': round(df['drinks_per_week'].mean(), 2),
     }
 
-    # Creamos una figura con varios gráficos
-    fig, axes = plt.subplots(3, 2, figsize=(12, 12))
-    fig, axes = plt.subplots(2, 2, figsize=(12, 10))
-    plt.subplots_adjust(hspace=0.4)
+    # Gráficos para análisis de patrones no usados en /graficos
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    plt.subplots_adjust(hspace=0.4, wspace=0.3)
 
-    sns.histplot(df['age'], bins=20, kde=True, ax=axes[0, 0], color='skyblue')
-    axes[0, 0].set_title('Distribución de Edad')
+    # 1. Relación entre edad de inicio de fumar y cantidad de cigarrillos por día
+    sns.scatterplot(
+        x='age_started_smoking', y='smokes_per_day', data=df, ax=axes[0, 0], alpha=0.6, color='teal'
+    )
+    axes[0, 0].set_title('Edad de inicio de fumar vs Cigarrillos por día')
 
-    sns.boxplot(x='smokes_per_day', data=df, ax=axes[0, 1], color='lightcoral')
-    axes[0, 1].set_title('Distribución de Cigarrillos por Día')
+    # 2. Relación entre edad de inicio de beber y consumo de alcohol semanal
+    sns.scatterplot(
+        x='age_started_drinking', y='drinks_per_week', data=df, ax=axes[0, 1], alpha=0.6, color='purple'
+    )
+    axes[0, 1].set_title('Edad de inicio de beber vs Alcohol por semana')
 
-    sns.histplot(df['drinks_per_week'], bins=20, kde=True, ax=axes[1, 0], color='lightgreen')
-    axes[1, 0].set_title('Distribución de Consumo de Alcohol por Semana')
+    # 3. Boxplot de intentos de dejar de fumar según apoyo social
+    sns.boxplot(
+        x='social_support', y='attempts_to_quit_smoking', data=df, ax=axes[1, 0], palette='pastel'
+    )
+    axes[1, 0].set_title('Intentos de dejar de fumar según Apoyo Social')
+    axes[1, 0].tick_params(axis='x', rotation=30)
 
-    sns.regplot(x='age', y='smokes_per_day', data=df, ax=axes[1, 1], scatter_kws={'alpha':0.5})
-    axes[1, 1].set_title('Edad vs Cigarrillos por Día')
+    # 4. Heatmap de correlación entre variables numéricas
+    corr = df[['age', 'smokes_per_day', 'drinks_per_week', 'age_started_smoking', 'age_started_drinking',
+               'attempts_to_quit_smoking', 'attempts_to_quit_drinking']].corr()
+    sns.heatmap(corr, annot=True, cmap='coolwarm', ax=axes[1, 1])
+    axes[1, 1].set_title('Correlación entre variables numéricas')
 
     plt.tight_layout()
     plt.savefig('plots/analisis.png')
@@ -284,14 +314,14 @@ def predict():
             prob_fumador = modelo_fumador.predict_proba(input_fumador)[0][1]
             prob_tomador = modelo_tomador.predict_proba(input_tomador)[0][1]
 
-            return render_template('predict_result.html',
+            return render_template('resultado_prediccion.html',
                                    prob_fumador=round(prob_fumador * 100, 2),
                                    prob_tomador=round(prob_tomador * 100, 2))
 
         except Exception as e:
             return f"Error en predicción: {e}"
 
-    return render_template('predict_form.html')
+    return render_template('form_prediccion.html')
     
 
 if __name__ == "__main__":

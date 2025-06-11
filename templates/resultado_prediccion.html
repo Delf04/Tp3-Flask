@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Resultado de Predicción{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/calculadora.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <div class="resultado shadow p-4 rounded bg-light">
+        <h2 class="mb-4 text-success">Resultados de la Predicción</h2>
+        <p><strong>Probabilidad de ser fumador frecuente:</strong> {{ prob_fumador }}%</p>
+        <p><strong>Probabilidad de ser tomador frecuente:</strong> {{ prob_tomador }}%</p>
+        <a href="/predict" class="btn btn-secondary mt-3">Volver</a>
+    </div>
+</div>
+{% endblock %}
