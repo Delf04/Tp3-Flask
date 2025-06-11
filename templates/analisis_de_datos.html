@@ -1,75 +1,44 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Análisis de Datos</title>
+{% extends "base.html" %}
+
+{% block title %}Análisis de Datos{% endblock %}
+
+{% block head %}
+    {{ super() }}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/analisistyle.css') }}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+{% endblock %}
 
-</head>
-<body>
-
-
-                                                                  <!-- el navbar -->
-    <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for('index') }}">Adicciones</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{{ url_for('index') }}">Base de Datos</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('graficos') }}">Graficos</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('analisis_de_datos') }}">Analisis de Datos</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-
-
-    
-    
+{% block content %}
     <div class="container">
-        <h1>Gráficos de análisis</h1>
-        <img class="img" src="data:image/png;base64,{{ plot_url }}" alt="Gráfico de análisis">
+        <h1 class="mt-4 mb-3">Análisis de Datos</h1>
 
+        <p>
+            Esta sección está dedicada a la visualización de datos relacionados con el consumo de cigarrillos y alcohol. 
+            A través de distintos gráficos, se facilita la comparación entre ambos hábitos y se destacan patrones comunes 
+            en diferentes grupos de personas. También se consideran factores como la salud mental y el nivel de apoyo social, 
+            que influyen en el desarrollo o mantenimiento de conductas adictivas.
+        </p>
 
-    <div class="estadisticas">
-        <h2>Estadísticas básicas</h2>
-        <ul>
-            {% for k, v in estadisticas.items() %}
-                <li><strong>{{ k }}:</strong> {{ v }}</li>
-            {% endfor %}
-        </ul>
-    </div>
+        <div class="text-center my-4">
+            <img class="img-fluid" src="data:image/png;base64,{{ plot_url }}" alt="Gráfico de análisis">
+        </div>
 
-    <div class="resumen-tabla">
-        <h2>Resumen estadístico completo</h2>
-        {{ resumen_tabla | safe }}
-    </div>
-</div>
+        <div class="estadisticas mb-5">
+            <h2>Estadísticas básicas</h2>
+            <ul class="list-group">
+                {% for k, v in estadisticas.items() %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <strong>{{ k }}</strong>
+                        <span>{{ v }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
 
-
-     <footer>
-        <div class="footer">
-            <div>
-                <h6>
-                    @2025 Taller de Internet
-                </h6>
-                <p>
-                    Desarrollado por Simón Canorio y Delfina Taira
-                </p>
+        <div class="resumen-tabla">
+            <h2>Resumen estadístico completo</h2>
+            <div class="table-responsive">
+                {{ resumen_tabla | safe }}
             </div>
-
-
-
-</body>
-</html>
-
+        </div>
+    </div>
+{% endblock %}

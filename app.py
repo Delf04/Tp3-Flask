@@ -244,7 +244,7 @@ def entrenar_modelos():
 
 # Entrena ambos modelos dentro del contexto Flask para evitar errores con db.session
 
-@app.route('/predict', methods=['GET', 'POST'])
+@app.route('/prediccion', methods=['GET', 'POST'])
 def predict():
     if modelo_fumador is None or modelo_tomador is None:
         return "Modelos no disponibles. Cargá el archivo CSV primero desde la página principal.", 400
@@ -277,14 +277,14 @@ def predict():
             prob_fumador = modelo_fumador.predict_proba(input_fumador)[0][1]
             prob_tomador = modelo_tomador.predict_proba(input_tomador)[0][1]
 
-            return render_template('predict_result.html',
+            return render_template('resultado_prediccion.html',
                                    prob_fumador=round(prob_fumador * 100, 2),
                                    prob_tomador=round(prob_tomador * 100, 2))
 
         except Exception as e:
             return f"Error en predicción: {e}"
 
-    return render_template('predict_form.html')
+    return render_template('form_prediccion.html')
     
 
 if __name__ == "__main__":
