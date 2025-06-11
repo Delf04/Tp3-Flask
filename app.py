@@ -113,7 +113,7 @@ def dataset_completo():
 @app.route('/graficos')
 def graficos():
     df = pd.read_sql(db.session.query(Persona).statement, db.engine) 
-    fig, axes = plt.subplots(6, 2, figsize=(18, 28))
+    fig, axes = plt.subplots(6, 2, figsize=(18, 30))
     plt.subplots_adjust(hspace=0.5, wspace=0.3)
 
     # 1. Cigarrillos por día vs Salud mental
@@ -137,7 +137,7 @@ def graficos():
     axes[2, 0].set_title('Intentos de dejar de tomar')
 
     # 6. Apoyo social vs Cigarrillos por día
-    sns.boxplot(x='social_support', y='smokes_per_day', data=df, ax=axes[2, 1])
+    sns.boxplot(x='social_support', y='smokes_per_day', data=df, ax=axes[2, 1], palette ="pastel")
     axes[2, 1].set_title('Apoyo social vs Cigarrillos por día')
 
     # 7. Distribución de género
