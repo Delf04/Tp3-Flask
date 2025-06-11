@@ -4,7 +4,7 @@
 
 {% block content %}
 <header>
-    <h1 class="titulo_principal">Estudio sobre Adicciones: Cigarrillos y Bebidas Alcohólicas</h1>
+    <h1 class="titulo_principal", id="inicio">Estudio sobre Adicciones: Cigarrillos y Bebidas Alcohólicas</h1>
 </header>
 
 <section class="descripcion">
@@ -17,7 +17,7 @@
         <br>Esta información permite identificar grupos de riesgo, analizar patrones de consumo y construir modelos predictivos. Todos los datos son ficticios y no contienen información personal ni identificable.
     </p>
     {% if datos_cargados %}
-        <p><a href="{{ url_for('dataset_completo') }}">Ver dataset completo</a></p>
+        <p><a href="{{ url_for('dataset_completo') }}", class="graficos-link">Ver dataset completo</a></p>
     {% endif %}
 </section>
 
