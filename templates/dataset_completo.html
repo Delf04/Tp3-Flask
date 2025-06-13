@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Dataset Completo{% endblock %}
+
+{% block content %}
+    <h1>Dataset Completo (desde CSV)</h1>
+    <p>Esta tabla muestra el contenido original del archivo cargado.</p>
+    
+    <div class="tabla">
+        {{ tabla_html | safe }}
+    </div>
+
+    <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Volver al Inicio</a>
+{% endblock %}
