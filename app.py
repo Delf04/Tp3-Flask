@@ -66,10 +66,10 @@ def index(limit=15):
 @app.route('/cargar', methods=['POST'])
 def cargar_csv():
     file = request.files['file']
-
     if file and file.filename == 'adicciones.csv':
         stream = file.stream.read().decode('utf-8').splitlines()
         reader = csv.DictReader(stream)
+        personas_a_agregar = []
         for row in reader:
             try:
                 persona = Persona(
@@ -87,19 +87,20 @@ def cargar_csv():
                     social_support=row['social_support'],
                     therapy_history=row['therapy_history']
                 )
-                db.session.add(persona)
+                personas_a_agregar.append(persona)
             except Exception as e:
                 print(f"Error al procesar fila: {row.get('id', 'sin id')} -> {e}")
-        db.session.commit()
 
+        # Inserta todas las personas en una sola transacción
+        db.session.bulk_save_objects(personas_a_agregar)
+        db.session.commit()
 
         global modelo_fumador, modelo_tomador, encoder_gender, encoder_mental
         modelo_fumador, modelo_tomador, encoder_gender, encoder_mental = entrenar_modelos()
 
         return redirect('/')
     else:
-        return "El archivo debe llamarse exactamente 'adicciones.csv'", 400
-        
+        return "El archivo debe llamarse exactamente 'adicciones.csv'", 400        
 
 @app.route('/dataset_completo')
 def dataset_completo():
@@ -112,7 +113,7 @@ def dataset_completo():
 # Ruta para gráficos
 @app.route('/graficos')
 def graficos():
-    df = pd.read_sql(db.session.query(Persona).statement, db.engine) 
+    df = pd.read_sql(db.session.query(Persona).statement, db.engine)
     fig, axes = plt.subplots(6, 2, figsize=(18, 30))
     plt.subplots_adjust(hspace=0.5, wspace=0.3)
 
