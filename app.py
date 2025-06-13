@@ -23,10 +23,6 @@ db = SQLAlchemy(app)
 # Asegurar que la carpeta plots exista
 os.makedirs('plots', exist_ok=True)
 
-def generate_figure():
-    df = pd.read_csv('adicciones_sin_bmi.csv')  # archivo sin bmi
-    return df
-
 class Persona(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     age = db.Column(db.Integer)
