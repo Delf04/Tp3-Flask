@@ -25,7 +25,16 @@ def procesar_csv(file):
                 has_health_issues=row['has_health_issues'].lower() == 'true',
                 mental_health_status=row['mental_health_status'],
                 social_support=row['social_support'],
-                therapy_history=row['therapy_history']
+                therapy_history=row['therapy_history'],
+                education_level=row.get('education_level', None),
+                employment_status=row.get('employment_status', None),
+                annual_income_usd=int(row['annual_income_usd']) if row.get('annual_income_usd') else None,
+                marital_status=row.get('marital_status', None),
+                children_count=int(row['children_count']) if row.get('children_count') else None,
+                exercise_frequency=row.get('exercise_frequency', None),
+                diet_quality=row.get('diet_quality', None),
+                sleep_hours=float(row['sleep_hours']) if row.get('sleep_hours') else None,
+                bmi=float(row['bmi']) if row.get('bmi') else None
             )
             personas_a_agregar.append(persona)
         except Exception as e:
