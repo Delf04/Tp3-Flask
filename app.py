@@ -114,52 +114,82 @@ def dataset_completo():
 @app.route('/graficos')
 def graficos():
     df = pd.read_sql(db.session.query(Persona).statement, db.engine)
-    fig, axes = plt.subplots(6, 2, figsize=(18, 30))
-    plt.subplots_adjust(hspace=0.5, wspace=0.3)
+    plot_dir = 'plots'
+    os.makedirs(plot_dir, exist_ok=True)
+    plot_files = []
 
     # 1. Edad de inicio al fumar
-    sns.histplot(df['age_started_smoking'].dropna(), bins=15, ax=axes[0, 1], color='orange')
-    axes[0, 1].set_title('Edad de inicio al fumar')
+    fig1, ax1 = plt.subplots(figsize=(6, 4))
+    sns.histplot(df['age_started_smoking'].dropna(), bins=15, ax=ax1, color='orange')
+    ax1.set_title('Edad de inicio al fumar')
+    file1 = os.path.join(plot_dir, 'edad_inicio_fumar.png')
+    fig1.savefig(file1)
+    plt.close(fig1)
+    plot_files.append(file1)
 
     # 2. Edad de inicio al beber alcohol
-    sns.histplot(df['age_started_drinking'].dropna(), bins=15, ax=axes[1, 0], color='green')
-    axes[1, 0].set_title('Edad de inicio al beber alcohol')
+    fig2, ax2 = plt.subplots(figsize=(6, 4))
+    sns.histplot(df['age_started_drinking'].dropna(), bins=15, ax=ax2, color='green')
+    ax2.set_title('Edad de inicio al beber alcohol')
+    file2 = os.path.join(plot_dir, 'edad_inicio_beber.png')
+    fig2.savefig(file2)
+    plt.close(fig2)
+    plot_files.append(file2)
 
     # 3. Intentos de dejar de tomar
-    sns.countplot(x='attempts_to_quit_drinking', data=df, ax=axes[2, 0], palette='Purples')
-    axes[2, 0].set_title('Intentos de dejar de tomar')
+    fig3, ax3 = plt.subplots(figsize=(6, 4))
+    sns.countplot(x='attempts_to_quit_drinking', data=df, ax=ax3, palette='Purples')
+    ax3.set_title('Intentos de dejar de tomar')
+    file3 = os.path.join(plot_dir, 'intentos_dejar_tomar.png')
+    fig3.savefig(file3)
+    plt.close(fig3)
+    plot_files.append(file3)
 
     # 4. Distribución de género
-    sns.countplot(x='gender', data=df, ax=axes[3, 0], palette='Set2')
-    axes[3, 0].set_title('Distribución de Género')
+    fig4, ax4 = plt.subplots(figsize=(6, 4))
+    sns.countplot(x='gender', data=df, ax=ax4, palette='Set2')
+    ax4.set_title('Distribución de Género')
+    file4 = os.path.join(plot_dir, 'distribucion_genero.png')
+    fig4.savefig(file4)
+    plt.close(fig4)
+    plot_files.append(file4)
 
     # 5. Relación entre edad y consumo de alcohol
-    sns.scatterplot(x='age', y='drinks_per_week', data=df, ax=axes[4, 0], alpha=0.6)
-    axes[4, 0].set_title('Edad vs Consumo de Alcohol por Semana')
+    fig5, ax5 = plt.subplots(figsize=(6, 4))
+    sns.scatterplot(x='age', y='drinks_per_week', data=df, ax=ax5, alpha=0.6)
+    ax5.set_title('Edad vs Consumo de Alcohol por Semana')
+    file5 = os.path.join(plot_dir, 'edad_vs_alcohol.png')
+    fig5.savefig(file5)
+    plt.close(fig5)
+    plot_files.append(file5)
 
     # 6. Distribución de personas con problemas de salud
-    sns.countplot(x='has_health_issues', data=df, ax=axes[4, 1], palette='Set1')
-    axes[4, 1].set_title('Distribución de Problemas de Salud')
+    fig6, ax6 = plt.subplots(figsize=(6, 4))
+    sns.countplot(x='has_health_issues', data=df, ax=ax6, palette='Set1')
+    ax6.set_title('Distribución de Problemas de Salud')
+    file6 = os.path.join(plot_dir, 'distribucion_salud.png')
+    fig6.savefig(file6)
+    plt.close(fig6)
+    plot_files.append(file6)
 
     # 7. Relación entre cigarrillos y alcohol
-    sns.scatterplot(x='smokes_per_day', y='drinks_per_week', data=df, ax=axes[5, 1], alpha=0.6)
-    axes[5, 1].set_title('Cigarrillos por día vs Alcohol por semana')
+    fig7, ax7 = plt.subplots(figsize=(6, 4))
+    sns.scatterplot(x='smokes_per_day', y='drinks_per_week', data=df, ax=ax7, alpha=0.6)
+    ax7.set_title('Cigarrillos por día vs Alcohol por semana')
+    file7 = os.path.join(plot_dir, 'cigarrillos_vs_alcohol.png')
+    fig7.savefig(file7)
+    plt.close(fig7)
+    plot_files.append(file7)
 
-    # Guardar imagen
-    img = BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-    plot_url = base64.b64encode(img.getvalue()).decode()
-    plt.savefig('plots/graficos.png')
-    plt.close()
+    # Codificar imágenes en base64 para mostrar en la plantilla
+    plot_urls = []
+    for file in plot_files:
+        with open(file, "rb") as image_file:
+            plot_urls.append(base64.b64encode(image_file.read()).decode())
 
-    with open("plots/graficos.png", "rb") as image_file:
-        plot_url = base64.b64encode(image_file.read()).decode()
-
-    return render_template('graficos.html', plot_url=plot_url)
+    return render_template('graficos.html', plot_urls=plot_urls)
 
 
-# Ruta para análisis
 @app.route('/analisis_de_datos')
 def analisis_de_datos():
     df = pd.read_sql(db.session.query(Persona).statement, db.engine)
@@ -172,39 +202,62 @@ def analisis_de_datos():
         'Alcohol promedio': round(df['drinks_per_week'].mean(), 2),
     }
 
-    # Gráficos para análisis de patrones 
-    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
-    plt.subplots_adjust(hspace=0.4, wspace=0.3)
+    plot_dir = 'plots'
+    os.makedirs(plot_dir, exist_ok=True)
+    plot_files = []  # Acá almacenamos todas las imágenes
 
-    # 1. Relación entre edad de inicio de fumar y cantidad de cigarrillos por día
+    # 1. Relación entre edad de inicio de fumar y cigarrillos por día
+    file1 = os.path.join(plot_dir, 'edad_inicio_fumar_vs_cigarrillos.png')
+    fig1, ax1 = plt.subplots(figsize=(6, 4))
     sns.scatterplot(
-        x='age_started_smoking', y='smokes_per_day', data=df, ax=axes[0, 0], alpha=0.6, color='teal'
+        x='age_started_smoking', y='smokes_per_day', data=df, ax=ax1, alpha=0.6, color='teal'
     )
-    axes[0, 0].set_title('Edad de inicio de fumar vs Cigarrillos por día')
+    ax1.set_title('Edad de inicio de fumar vs Cigarrillos por día')
+    fig1.tight_layout()
+    fig1.savefig(file1)
+    plt.close(fig1)
+    plot_files.append(file1)
 
     # 2. Relación entre edad de inicio de beber y consumo de alcohol semanal
+    file2 = os.path.join(plot_dir, 'edad_inicio_beber_vs_alcohol.png')
+    fig2, ax2 = plt.subplots(figsize=(6, 4))
     sns.scatterplot(
-        x='age_started_drinking', y='drinks_per_week', data=df, ax=axes[0, 1], alpha=0.6, color='purple'
+        x='age_started_drinking', y='drinks_per_week', data=df, ax=ax2, alpha=0.6, color='purple'
     )
-    axes[0, 1].set_title('Edad de inicio de beber vs Alcohol por semana')
+    ax2.set_title('Edad de inicio de beber vs Alcohol por semana')
+    fig2.tight_layout()
+    fig2.savefig(file2)
+    plt.close(fig2)
+    plot_files.append(file2)
 
     # 3. Boxplot de intentos de dejar de fumar según apoyo social
+    file3 = os.path.join(plot_dir, 'intentos_dejar_fumar_vs_apoyo_social.png')
+    fig3, ax3 = plt.subplots(figsize=(6, 4))
     sns.boxplot(
-        x='social_support', y='attempts_to_quit_smoking', data=df, ax=axes[1, 0], palette='pastel'
+        x='social_support', y='attempts_to_quit_smoking', data=df, ax=ax3, palette='pastel'
     )
-    axes[1, 0].set_title('Intentos de dejar de fumar según Apoyo Social')
-    axes[1, 0].tick_params(axis='x', rotation=30)
+    ax3.set_title('Intentos de dejar de fumar según Apoyo Social')
+    ax3.tick_params(axis='x', rotation=30)
+    fig3.tight_layout()
+    fig3.savefig(file3)
+    plt.close(fig3)
+    plot_files.append(file3)
 
-    plt.tight_layout()
-    plt.savefig('plots/analisis.png')
-    plt.close()
-
-    with open("plots/analisis.png", "rb") as image_file:
-        plot_url = base64.b64encode(image_file.read()).decode()
+    # Codificar imágenes en base64 para mostrar en la plantilla
+    plot_urls = []
+    for file in plot_files:
+        with open(file, "rb") as image_file:
+            plot_urls.append(base64.b64encode(image_file.read()).decode())
 
     resumen_tabla = df[['age', 'smokes_per_day', 'drinks_per_week']].describe().round(2).to_html(classes="table table-striped")
 
-    return render_template('analisis_de_datos.html', plot_url=plot_url, resumen_tabla=resumen_tabla, estadisticas=estadisticas)
+    return render_template(
+        'analisis_de_datos.html',
+        plot_urls=plot_urls,
+        resumen_tabla=resumen_tabla,
+        estadisticas=estadisticas
+    )
+
 
 
 def entrenar_modelos():
