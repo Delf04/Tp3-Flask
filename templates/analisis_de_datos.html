@@ -18,8 +18,12 @@
             que influyen en el desarrollo o mantenimiento de conductas adictivas.
         </p>
 
-        <div class="img">
-            <img class="img-fluid" src="data:image/png;base64,{{ plot_url }}" alt="Gráfico de análisis">
+        <div class="graficos-container">
+            {% for url in plot_urls %}
+                <div class="grafico-item">
+                    <img class="img-fluid" src="data:image/png;base64,{{ url }}" alt="Gráfico de análisis">
+                </div>
+            {% endfor %}
         </div>
 
         <div class="estadisticas">
@@ -35,5 +39,3 @@
         </div>
     </div>
 {% endblock %}
-
-
