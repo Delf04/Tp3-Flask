@@ -83,46 +83,44 @@ def entrenar_modelos():
                 dummy[var] = valor
                 df = df._append(dummy, ignore_index=True)
 
-    # Variables a usar en los modelos
+    # Usar los mismos factores de riesgo para ambos modelos
     features = [
         'age', 'gender', 'smokes_per_day', 'age_started_smoking',
         'attempts_to_quit_smoking', 'has_health_issues', 'mental_health_status',
         'social_support', 'therapy_history', 'education_level', 'employment_status',
         'annual_income_usd', 'marital_status', 'children_count', 'exercise_frequency',
-        'diet_quality', 'sleep_hours', 'bmi'
-    ]
-
-    features_tomador = [
-        'age', 'gender', 'smokes_per_day', 'age_started_drinking',
-        'attempts_to_quit_drinking', 'has_health_issues', 'mental_health_status',
-        'social_support', 'therapy_history', 'education_level', 'employment_status',
-        'annual_income_usd', 'marital_status', 'children_count', 'exercise_frequency',
-        'diet_quality', 'sleep_hours', 'bmi'
+        'diet_quality', 'sleep_hours', 'bmi',
+        'drinks_per_week', 'age_started_drinking', 'attempts_to_quit_drinking'
     ]
 
     # Separación de datos
-    X_fumador = df[features].copy()
+    X = df[features].copy()
     y_fumador = df['es_fumador_frecuente'].astype(int)
-    X_tomador = df[features_tomador].copy()
     y_tomador = df['es_tomador_frecuente'].astype(int)
 
     # Codificadores para variables categóricas
     encoders = {}
     cat_vars = list(valores_posibles.keys())
-
     for var in cat_vars:
         le = LabelEncoder()
-        X_fumador[var] = le.fit_transform(X_fumador[var])
-        X_tomador[var] = le.transform(X_tomador[var])
+        X[var] = le.fit_transform(X[var])
         encoders[var] = le
 
     # Variables booleanas a entero
-    X_fumador['has_health_issues'] = X_fumador['has_health_issues'].astype(int)
-    X_tomador['has_health_issues'] = X_tomador['has_health_issues'].astype(int)
+    X['has_health_issues'] = X['has_health_issues'].astype(int)
 
-    # Entrenamiento
-    modelo_fumador = LogisticRegression(max_iter=1000).fit(X_fumador, y_fumador)
-    modelo_tomador = LogisticRegression(max_iter=1000).fit(X_tomador, y_tomador)
+    # Imputar valores faltantes con la mediana para variables numéricas
+    for col in X.columns:
+        if X[col].dtype in [np.float64, np.int64]:
+            X[col] = X[col].fillna(X[col].median())
+
+    # Entrenamiento con regularización y balanceo de clases
+    modelo_fumador = LogisticRegression(
+        max_iter=2000, class_weight='balanced', solver='lbfgs', C=0.5, random_state=42
+    ).fit(X, y_fumador)
+    modelo_tomador = LogisticRegression(
+        max_iter=2000, class_weight='balanced', solver='lbfgs', C=0.5, random_state=42
+    ).fit(X, y_tomador)
 
     # Función de predicción
     def predecir(input_dict):
@@ -131,46 +129,34 @@ def entrenar_modelos():
 
         has_health_issues = input_dict['has_health_issues'] == 'true'
 
-        input_fumador = np.array([[int(input_dict['age']),
-                                   encode('gender'),
-                                   int(input_dict['smokes_per_day']),
-                                   int(input_dict['age_started_smoking']),
-                                   int(input_dict['attempts_to_quit_smoking']),
-                                   int(has_health_issues),
-                                   encode('mental_health_status'),
-                                   encode('social_support'),
-                                   encode('therapy_history'),
-                                   encode('education_level'),
-                                   encode('employment_status'),
-                                   int(input_dict['annual_income_usd']),
-                                   encode('marital_status'),
-                                   int(input_dict['children_count']),
-                                   encode('exercise_frequency'),
-                                   encode('diet_quality'),
-                                   float(input_dict['sleep_hours']),
-                                   float(input_dict['bmi'])]])
+        input_row = [
+            int(input_dict['age']),
+            encode('gender'),
+            int(input_dict['smokes_per_day']),
+            int(input_dict['age_started_smoking']),
+            int(input_dict['attempts_to_quit_smoking']),
+            int(has_health_issues),
+            encode('mental_health_status'),
+            encode('social_support'),
+            encode('therapy_history'),
+            encode('education_level'),
+            encode('employment_status'),
+            int(input_dict['annual_income_usd']),
+            encode('marital_status'),
+            int(input_dict['children_count']),
+            encode('exercise_frequency'),
+            encode('diet_quality'),
+            float(input_dict['sleep_hours']),
+            float(input_dict['bmi']),
+            int(input_dict['drinks_per_week']),
+            int(input_dict['age_started_drinking']),
+            int(input_dict['attempts_to_quit_drinking'])
+        ]
 
-        input_tomador = np.array([[int(input_dict['age']),
-                                   encode('gender'),
-                                   int(input_dict['smokes_per_day']),
-                                   int(input_dict['age_started_drinking']),
-                                   int(input_dict['attempts_to_quit_drinking']),
-                                   int(has_health_issues),
-                                   encode('mental_health_status'),
-                                   encode('social_support'),
-                                   encode('therapy_history'),
-                                   encode('education_level'),
-                                   encode('employment_status'),
-                                   int(input_dict['annual_income_usd']),
-                                   encode('marital_status'),
-                                   int(input_dict['children_count']),
-                                   encode('exercise_frequency'),
-                                   encode('diet_quality'),
-                                   float(input_dict['sleep_hours']),
-                                   float(input_dict['bmi'])]])
+        input_np = np.array([input_row])
 
-        prob_fumador = modelo_fumador.predict_proba(input_fumador)[0][1]
-        prob_tomador = modelo_tomador.predict_proba(input_tomador)[0][1]
+        prob_fumador = modelo_fumador.predict_proba(input_np)[0][1]
+        prob_tomador = modelo_tomador.predict_proba(input_np)[0][1]
 
         return {
             'prob_fumador': round(prob_fumador * 100, 2),
