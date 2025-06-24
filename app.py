@@ -14,7 +14,7 @@ from sklearn.metrics import accuracy_score
 import numpy as np
 
 
-# Configuración inicial
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db = SQLAlchemy(app)
