@@ -59,51 +59,115 @@ def entrenar_modelos():
     if df.empty:
         return {}
 
+    # Variables objetivo
     df['es_fumador_frecuente'] = df['smokes_per_day'] > 10
     df['es_tomador_frecuente'] = df['drinks_per_week'] > 7
 
-    features = ['age', 'gender', 'smokes_per_day', 'age_started_smoking',
-                'attempts_to_quit_smoking', 'has_health_issues', 'mental_health_status']
+    # Valores posibles para forzar codificadores robustos
+    valores_posibles = {
+        'gender': ['Male', 'Female', 'Other'],
+        'mental_health_status': ['Good', 'Average', 'Poor'],
+        'social_support': ['High', 'Moderate', 'Low'],
+        'therapy_history': ['Yes', 'No'],
+        'education_level': ['Primary', 'Secondary', 'Tertiary', 'University', 'Postgraduate'],
+        'employment_status': ['Employed', 'Unemployed', 'Student', 'Retired'],
+        'marital_status': ['Single', 'Married', 'Divorced', 'Widowed'],
+        'exercise_frequency': ['Never', 'Sometimes', 'Regular'],
+        'diet_quality': ['Poor', 'Average', 'Good']
+    }
 
-    features_tomador = ['age', 'gender', 'smokes_per_day', 'age_started_drinking',
-                        'attempts_to_quit_drinking', 'has_health_issues', 'mental_health_status']
+    for var, valores in valores_posibles.items():
+        for valor in valores:
+            if valor not in df[var].values:
+                dummy = df.iloc[0].copy()
+                dummy[var] = valor
+                df = df._append(dummy, ignore_index=True)
 
+    # Variables a usar en los modelos
+    features = [
+        'age', 'gender', 'smokes_per_day', 'age_started_smoking',
+        'attempts_to_quit_smoking', 'has_health_issues', 'mental_health_status',
+        'social_support', 'therapy_history', 'education_level', 'employment_status',
+        'annual_income_usd', 'marital_status', 'children_count', 'exercise_frequency',
+        'diet_quality', 'sleep_hours', 'bmi'
+    ]
+
+    features_tomador = [
+        'age', 'gender', 'smokes_per_day', 'age_started_drinking',
+        'attempts_to_quit_drinking', 'has_health_issues', 'mental_health_status',
+        'social_support', 'therapy_history', 'education_level', 'employment_status',
+        'annual_income_usd', 'marital_status', 'children_count', 'exercise_frequency',
+        'diet_quality', 'sleep_hours', 'bmi'
+    ]
+
+    # Separación de datos
     X_fumador = df[features].copy()
     y_fumador = df['es_fumador_frecuente'].astype(int)
     X_tomador = df[features_tomador].copy()
     y_tomador = df['es_tomador_frecuente'].astype(int)
 
-    le_gender = LabelEncoder()
-    X_fumador['gender'] = le_gender.fit_transform(X_fumador['gender'])
-    X_tomador['gender'] = le_gender.transform(X_tomador['gender'])
+    # Codificadores para variables categóricas
+    encoders = {}
+    cat_vars = list(valores_posibles.keys())
 
-    le_mental = LabelEncoder()
-    X_fumador['mental_health_status'] = le_mental.fit_transform(X_fumador['mental_health_status'])
-    X_tomador['mental_health_status'] = le_mental.transform(X_tomador['mental_health_status'])
+    for var in cat_vars:
+        le = LabelEncoder()
+        X_fumador[var] = le.fit_transform(X_fumador[var])
+        X_tomador[var] = le.transform(X_tomador[var])
+        encoders[var] = le
 
+    # Variables booleanas a entero
     X_fumador['has_health_issues'] = X_fumador['has_health_issues'].astype(int)
     X_tomador['has_health_issues'] = X_tomador['has_health_issues'].astype(int)
 
+    # Entrenamiento
     modelo_fumador = LogisticRegression(max_iter=1000).fit(X_fumador, y_fumador)
     modelo_tomador = LogisticRegression(max_iter=1000).fit(X_tomador, y_tomador)
 
+    # Función de predicción
     def predecir(input_dict):
-        age = int(input_dict['age'])
-        gender_encoded = le_gender.transform([input_dict['gender']])[0]
-        mental_encoded = le_mental.transform([input_dict['mental_health_status']])[0]
+        def encode(var):
+            return encoders[var].transform([input_dict[var]])[0]
+
         has_health_issues = input_dict['has_health_issues'] == 'true'
 
-        input_fumador = np.array([[
-            age, gender_encoded, int(input_dict['smokes_per_day']),
-            int(input_dict['age_started_smoking']), int(input_dict['attempts_to_quit_smoking']),
-            int(has_health_issues), mental_encoded
-        ]])
+        input_fumador = np.array([[int(input_dict['age']),
+                                   encode('gender'),
+                                   int(input_dict['smokes_per_day']),
+                                   int(input_dict['age_started_smoking']),
+                                   int(input_dict['attempts_to_quit_smoking']),
+                                   int(has_health_issues),
+                                   encode('mental_health_status'),
+                                   encode('social_support'),
+                                   encode('therapy_history'),
+                                   encode('education_level'),
+                                   encode('employment_status'),
+                                   int(input_dict['annual_income_usd']),
+                                   encode('marital_status'),
+                                   int(input_dict['children_count']),
+                                   encode('exercise_frequency'),
+                                   encode('diet_quality'),
+                                   float(input_dict['sleep_hours']),
+                                   float(input_dict['bmi'])]])
 
-        input_tomador = np.array([[
-            age, gender_encoded, int(input_dict['smokes_per_day']),
-            int(input_dict['age_started_drinking']), int(input_dict['attempts_to_quit_drinking']),
-            int(has_health_issues), mental_encoded
-        ]])
+        input_tomador = np.array([[int(input_dict['age']),
+                                   encode('gender'),
+                                   int(input_dict['smokes_per_day']),
+                                   int(input_dict['age_started_drinking']),
+                                   int(input_dict['attempts_to_quit_drinking']),
+                                   int(has_health_issues),
+                                   encode('mental_health_status'),
+                                   encode('social_support'),
+                                   encode('therapy_history'),
+                                   encode('education_level'),
+                                   encode('employment_status'),
+                                   int(input_dict['annual_income_usd']),
+                                   encode('marital_status'),
+                                   int(input_dict['children_count']),
+                                   encode('exercise_frequency'),
+                                   encode('diet_quality'),
+                                   float(input_dict['sleep_hours']),
+                                   float(input_dict['bmi'])]])
 
         prob_fumador = modelo_fumador.predict_proba(input_fumador)[0][1]
         prob_tomador = modelo_tomador.predict_proba(input_tomador)[0][1]
@@ -116,7 +180,6 @@ def entrenar_modelos():
     return {
         'modelo_fumador': modelo_fumador,
         'modelo_tomador': modelo_tomador,
-        'encoder_gender': le_gender,
-        'encoder_mental': le_mental,
+        'encoders': encoders,
         'predecir': predecir
     }

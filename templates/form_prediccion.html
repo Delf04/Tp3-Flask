@@ -11,6 +11,8 @@
 <div>
     <h2 class="titulo">Calculadora de Riesgo de Adicciones</h2>
     <form method="post" action="{{ url_for('predict') }}" class="formulario p-4 shadow rounded bg-light">
+
+        <!-- Variables básicas -->
         <div class="mb-3">
             <label class="form-label">Edad</label>
             <input type="number" name="age" class="form-control" min="0" required>
@@ -37,7 +39,7 @@
 
         <div class="mb-3">
             <label class="form-label">Edad de inicio al fumar</label>
-            <input type="number" name="age_started_smoking" class="form-control" min="0" min="0" required>
+            <input type="number" name="age_started_smoking" class="form-control" min="0" required>
         </div>
 
         <div class="mb-3">
@@ -63,7 +65,7 @@
             </select>
         </div>
 
-        <div class="mb-4">
+        <div class="mb-3">
             <label class="form-label">Estado de salud mental</label>
             <select name="mental_health_status" class="form-select" required>
                 <option value="Good">Buena</option>
@@ -72,13 +74,98 @@
             </select>
         </div>
 
+        <!-- Nuevas variables -->
+
+        <div class="mb-3">
+            <label class="form-label">Apoyo social</label>
+            <select name="social_support" class="form-select" required>
+                <option value="High">Alto</option>
+                <option value="Moderate">Moderado</option>
+                <option value="Low">Bajo</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Historial de terapia</label>
+            <select name="therapy_history" class="form-select" required>
+                <option value="Yes">Sí</option>
+                <option value="No">No</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Nivel educativo</label>
+            <select name="education_level" class="form-select" required>
+                <option value="Primary">Primario</option>
+                <option value="Secondary">Secundario</option>
+                <option value="Tertiary">Terciario</option>
+                <option value="University">Universitario</option>
+                <option value="Postgraduate">Posgrado</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Situación laboral</label>
+            <select name="employment_status" class="form-select" required>
+                <option value="Employed">Empleado</option>
+                <option value="Unemployed">Desempleado</option>
+                <option value="Student">Estudiante</option>
+                <option value="Retired">Jubilado</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Ingreso anual (USD)</label>
+            <input type="number" name="annual_income_usd" class="form-control" min="0" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Estado civil</label>
+            <select name="marital_status" class="form-select" required>
+                <option value="Single">Soltero/a</option>
+                <option value="Married">Casado/a</option>
+                <option value="Divorced">Divorciado/a</option>
+                <option value="Widowed">Viudo/a</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Cantidad de hijos</label>
+            <input type="number" name="children_count" class="form-control" min="0" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Frecuencia de ejercicio</label>
+            <select name="exercise_frequency" class="form-select" required>
+                <option value="Never">Nunca</option>
+                <option value="Sometimes">A veces</option>
+                <option value="Regular">Regularmente</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Calidad de la dieta</label>
+            <select name="diet_quality" class="form-select" required>
+                <option value="Poor">Mala</option>
+                <option value="Average">Promedio</option>
+                <option value="Good">Buena</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Horas de sueño por noche</label>
+            <input type="number" step="0.1" name="sleep_hours" class="form-control" min="0" required>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label">Índice de masa corporal (IMC)</label>
+            <input type="number" step="0.1" name="bmi" class="form-control" min="0" required>
+        </div>
+
         <div class="text-center">
             <input type="submit" value="Predecir" class="btn btn-primary">
         </div>
+
     </form>
 </div>
-
-
 {% endblock %}
-
-

@@ -84,12 +84,25 @@ def predict():
                 'attempts_to_quit_smoking': request.form['attempts_to_quit_smoking'],
                 'attempts_to_quit_drinking': request.form['attempts_to_quit_drinking'],
                 'has_health_issues': request.form['has_health_issues'],
-                'mental_health_status': request.form['mental_health_status']
+                'mental_health_status': request.form['mental_health_status'],
+                'social_support': request.form['social_support'],
+                'therapy_history': request.form['therapy_history'],
+                'education_level': request.form['education_level'],
+                'employment_status': request.form['employment_status'],
+                'annual_income_usd': request.form['annual_income_usd'],
+                'marital_status': request.form['marital_status'],
+                'children_count': request.form['children_count'],
+                'exercise_frequency': request.form['exercise_frequency'],
+                'diet_quality': request.form['diet_quality'],
+                'sleep_hours': request.form['sleep_hours'],
+                'bmi': request.form['bmi']
             }
+
             resultado = modelos['predecir'](datos)
             return render_template('resultado_prediccion.html', **resultado)
+
         except Exception as e:
-            return f"Error en predicción: {e}"
+            return f"Error en predicción: {e}", 500
 
     return render_template('form_prediccion.html')
 
