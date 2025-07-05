@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect
 from models import db, Persona
 from utils.helpers import procesar_csv, leer_dataset, codificar_imagenes, entrenar_modelos
-from utils.plots import generar_graficos_generales, generar_graficos_analisis
+from utils.plots import generar_graficos_generales, generar_graficos_analisis, DESCRIPCIONES_ANALISIS, DESCRIPCIONES_GRAFICOS
 import os
 import pandas as pd
 
@@ -45,12 +45,17 @@ def dataset_completo():
     tabla_html = df.to_html(classes='table table-bordered table-striped', index=False)
     return render_template('dataset_completo.html', tabla_html=tabla_html)
 
-@app.route('/graficos')
+@app.route("/graficos")
 def graficos():
     df = leer_dataset()
-    plot_files = generar_graficos_generales(df, 'plots')
-    plot_urls = codificar_imagenes(plot_files)
-    return render_template('graficos.html', plot_urls=plot_urls)
+    if df.empty:
+        return render_template("graficos.html", plot_urls=[])
+
+    output_dir = "static/graficos"
+    plot_files = generar_graficos_generales(df, output_dir)
+    plot_urls = codificar_imagenes(plot_files, DESCRIPCIONES_GRAFICOS)  # <-- Aquí el diccionario ANALISIS
+    return render_template("graficos.html", plot_urls=plot_urls)
+
 
 @app.route('/analisis_de_datos')
 def analisis_de_datos():
@@ -63,7 +68,7 @@ def analisis_de_datos():
         'Alcohol promedio': round(df['drinks_per_week'].mean(), 2),
     }
     plot_files = generar_graficos_analisis(df, 'plots')
-    plot_urls = codificar_imagenes(plot_files)
+    plot_urls = codificar_imagenes(plot_files, DESCRIPCIONES_ANALISIS) 
     resumen_tabla = df[['age', 'smokes_per_day', 'drinks_per_week']].describe().round(2).to_html(classes="table table-striped")
     return render_template('analisis_de_datos.html', plot_urls=plot_urls, resumen_tabla=resumen_tabla, estadisticas=estadisticas)
 

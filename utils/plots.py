@@ -2,6 +2,35 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
+DESCRIPCIONES_GRAFICOS = {
+    "edad_inicio_fumar.png": "Distribución de edad de inicio al fumar.",
+    "edad_inicio_beber.png": "Distribución de edad de inicio al beber alcohol.",
+    "intentos_dejar_tomar.png": "Cantidad de intentos por dejar de tomar alcohol.",
+    "distribucion_genero.png": "Proporción de género en la muestra.",
+    "intentos_dejar_fumar.png": "Frecuencia de intentos de dejar de fumar.",
+    "estado_salud_mental.png": "Estado de salud mental declarado por las personas.",
+    "apoyo_social.png": "Niveles de apoyo social percibido.",
+    "historial_terapia.png": "Historial de participación en terapia psicológica.",
+    "edad_inicio_fumar_vs_cigarrillos.png": "Relación entre edad de inicio al fumar y cantidad fumada.",
+    "edad_inicio_beber_vs_alcohol.png": "Relación entre edad de inicio al beber y cantidad de alcohol consumida.",
+    "salud_mental_vs_empleo.png": "Cruce entre estado de salud mental y estado laboral.",
+    "salud_mental_vs_estado_civil.png": "Cruce entre salud mental y estado civil.",
+    "sueno_vs_dieta.png": "Relación entre horas de sueño y calidad de la dieta.",
+    "sueno_vs_cigarrillos.png": "Relación entre sueño y cigarrillos por día.",
+    "sueno_vs_alcohol.png": "Relación entre sueño y consumo de alcohol.",
+    "intentos_dejar_fumar_vs_apoyo_social.png": "Intentos de dejar de fumar según el nivel de apoyo social.",
+}
+DESCRIPCIONES_ANALISIS = {
+    'edad_inicio_fumar_vs_cigarrillos.png': 'Edad de inicio de fumar vs cigarrillos por día (promedio).',
+    'edad_inicio_beber_vs_alcohol.png': 'Edad de inicio de beber vs consumo de alcohol semanal (promedio).',
+    'salud_mental_vs_empleo.png': 'Mapa de calor entre estado de salud mental y estado laboral.',
+    'salud_mental_vs_estado_civil.png': 'Mapa de calor entre salud mental y estado civil.',
+    'sueno_vs_dieta.png': 'Boxplot de horas de sueño según calidad de dieta.',
+    'sueno_vs_cigarrillos.png': 'Dispersión de horas de sueño y cigarrillos por día.',
+    'sueno_vs_alcohol.png': 'Dispersión de horas de sueño y consumo de alcohol semanal.',
+    'intentos_dejar_fumar_vs_apoyo_social.png': 'Intentos de dejar de fumar según nivel de apoyo social.'
+}
+
 def generar_graficos_generales(df, output_dir):
     os.makedirs(output_dir, exist_ok=True)
     plot_files = []

@@ -4,7 +4,7 @@
 
 {% block head %}
     {{ super() }}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/analisistyle.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/graficostyle.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -17,9 +17,10 @@
         </p>
 
         <div class="graficos-container">
-            {% for url in plot_urls %}
+            {% for grafico in plot_urls %}
                 <div class="grafico-item">
-                    <img class="img-fluid" src="data:image/png;base64,{{ url }}" alt="Gráfico de análisis">
+                    <img class="img-fluid" src="data:image/png;base64,{{ grafico.url }}" alt="Gráfico de análisis">
+                    <p class="grafico-descripcion">{{ grafico.descripcion }}</p>
                 </div>
             {% endfor %}
         </div>

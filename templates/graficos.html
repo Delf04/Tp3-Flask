@@ -16,11 +16,13 @@
     </p>
 
     <div class="graficos-container">
-        {% for url in plot_urls %}
-            <div class="grafico-item">
-                <img src="data:image/png;base64,{{ url }}" alt="Gráfico" class="grafico img">
-            </div>
-        {% endfor %}
+    {% for grafico in plot_urls %}
+        <div class="grafico-item">
+            <img src="data:image/png;base64,{{ grafico.url }}" alt="Gráfico" class="grafico img">
+            <p class="grafico-descripcion">{{ grafico.descripcion }}</p>
+        </div>
+    {% endfor %}
+
     </div>
 </div>
 {% endblock %}

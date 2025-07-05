@@ -1,7 +1,9 @@
 import pandas as pd
 import numpy as np
 import base64
+import os
 import csv
+from .plots import DESCRIPCIONES_GRAFICOS, DESCRIPCIONES_ANALISIS
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
 from models import db, Persona
@@ -47,11 +49,14 @@ def procesar_csv(file):
 def leer_dataset():
     return pd.read_sql(db.session.query(Persona).statement, db.engine)
 
-def codificar_imagenes(plot_files):
+def codificar_imagenes(plot_files, descripciones_dict):
     urls = []
     for file in plot_files:
+        nombre = os.path.basename(file)
         with open(file, "rb") as f:
-            urls.append(base64.b64encode(f.read()).decode())
+            img_base64 = base64.b64encode(f.read()).decode()
+            descripcion = descripciones_dict.get(nombre, "Gráfico sin descripción.")
+            urls.append({"url": img_base64, "descripcion": descripcion})
     return urls
 
 def entrenar_modelos():
