@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Análisis de Consumo{% endblock %}
+{% block title %}Visualización del Dataset{% endblock %}
 
 {% block head %}
     {{ super() }}
@@ -8,15 +8,21 @@
 {% endblock %}
 
 {% block content %}
-<div >
-    <h1 class="titulo">Análisis Comparativo de Consumo</h1>
+<div>
+    <h1 class="titulo">Visualización de los datos</h1>
     <p class="descripcion-graficos">
-        Esta sección está dedicada a la visualización de datos relacionados con el consumo de cigarrillos y alcohol. A través de distintos gráficos, se facilita la comparación entre ambos hábitos y se destacan patrones comunes en diferentes grupos de personas.
-        Además del análisis del consumo en sí, los gráficos también exploran factores asociados como el estado de salud mental y el nivel de apoyo social con el que cuentan los individuos. Estas variables pueden influir significativamente en el desarrollo o mantenimiento de conductas adictivas, por lo que su visualización ayuda a comprender mejor el contexto que rodea al consumo.
-        Los gráficos están diseñados para ofrecer una interpretación clara, intuitiva y útil tanto para análisis exploratorios como para fines educativos.
-
+        Esta sección está dedicada exclusivamente a la visualización de datos relacionados con el consumo de cigarrillos y alcohol.
+        Es importante aclarar que esta página tiene únicamente fines de visualización y no realiza ningún tipo de análisis o interpretación de los datos presentados.
     </p>
-    <img src="data:image/png;base64,{{ plot_url }}" alt="Gráficos comparativos" class="grafico img">
+
+    <div class="graficos-container">
+    {% for grafico in plot_urls %}
+        <div class="grafico-item">
+            <img src="data:image/png;base64,{{ grafico.url }}" alt="Gráfico" class="grafico img">
+            <p class="grafico-descripcion">{{ grafico.descripcion }}</p>
+        </div>
+    {% endfor %}
+
+    </div>
 </div>
 {% endblock %}
-

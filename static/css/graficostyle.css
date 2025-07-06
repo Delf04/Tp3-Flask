@@ -1,4 +1,4 @@
-
+/* Existing CSS */
 body {
     font-family: Arial, sans-serif;
     line-height: 1.6;
@@ -8,29 +8,35 @@ body {
     box-sizing: border-box;
     text-align: center;
 }
-
 .container {
+    text-align: center;
     margin: 50px auto;
     padding: 20px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
+    max-width: 1200px; /* Add a max-width to your container for better control */
+}
+.descripcion{
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-left: 4px solid #2a512e;
+    margin-bottom: 20px; /* Add some space below the description */
 }
 
-h1{
-    color: #26323f;
-    text-align: center;
-    padding-bottom: 20px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-}
-
-
-.grafico {
+.img  {
     max-width: 100%;
     height: auto;
     box-shadow: 0 0 5px rgba(0,0,0,0.2);
 }
 
+h2{
+    color: #26323f;
+    text-align: center;
+    padding-bottom: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    margin-top: 40px; /* Add some space above h2 */
+}
 
 .footer {
     text-align: center;
@@ -39,11 +45,52 @@ h1{
     padding: 40px 0;
 }
 
+/* --- Key CSS for graph organization --- */
+.graficos-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Centers the items when there aren't enough to fill a row */
+    gap: 20px; /* Space between graph items */
+    margin: 30px 0;
+}
+
+.grafico-item {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    /* Calculate width for two items per row, considering the gap */
+    /* (100% - total_gap_between_items) / number_of_items_per_row */
+    flex: 1 1 calc(50% - 10px); /* This makes items take up roughly 50% minus half the gap */
+    max-width: calc(50% - 10px); /* Ensures they don't grow beyond 50% */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    text-align: center; /* Center the image and text within the item */
+}
+
+.grafico-item p {
+    font-size: 0.9em; /* Adjust font size for descriptions */
+    color: #555;
+    margin-top: 10px;
+}
+
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+    display: block; /* Remove extra space below image */
+    margin: 0 auto; /* Center image within its container */
+}
 
 @media (max-width: 768px) {
     .container {
-        padding: 0 12px;
+        padding: 0 15px;
         margin: 20px auto;
+    }
+
+    /* Make graphs stack vertically on smaller screens */
+    .grafico-item {
+        flex: 1 1 100%; /* Take full width on small screens */
+        max-width: 100%;
     }
 
     h1 {
@@ -51,6 +98,7 @@ h1{
         padding-top: 20px;
     }
 
+    /* ... rest of your existing media query rules ... */
     table {
         font-size: 13px;
     }
@@ -78,13 +126,11 @@ h1{
         padding: 16px;
     }
 
-
-
-}
-
-
+    nav .navbar-brand {
+        font-size: 1.2em;
+    }
 
     nav .nav-link {
         font-size: 0.95em;
     }
-
+}
