@@ -15,7 +15,6 @@ def procesar_csv(file):
     for row in reader:
         try:
             persona = Persona(
-                id=int(row['id']),
                 age=int(row['age']),
                 gender=row['gender'],
                 smokes_per_day=int(row['smokes_per_day']),

@@ -5,7 +5,6 @@ from utils.plots import generar_graficos_generales, generar_graficos_analisis, D
 import os
 import pandas as pd
 
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db.init_app(app)
@@ -111,6 +110,57 @@ def predict():
             return f"Error en predicción: {e}", 500
 
     return render_template('form_prediccion.html')
+
+
+@app.route('/filtros', methods=['GET', 'POST'])
+def filtros():
+    df = leer_dataset()
+    if df.empty:
+        return "No hay datos disponibles. Subí el CSV desde la página principal.", 400
+
+    generos = sorted(df['gender'].dropna().unique())
+    estados_civiles = sorted(df['marital_status'].dropna().unique())
+
+    df_filtrado = df.copy()
+
+    if request.method == 'POST':
+        edad_min = max(0, min(int(request.form.get('edad_min', 0)), 120))
+        edad_max = max(0, min(int(request.form.get('edad_max', 120)), 120))
+        genero = request.form.get('genero')
+        estado_civil = request.form.get('estado_civil')
+        fumador = request.form.get('fumador')
+        bebedor = request.form.get('bebedor')
+
+        df_filtrado = df_filtrado[
+            (df_filtrado['age'] >= edad_min) &
+            (df_filtrado['age'] <= edad_max)
+        ]
+
+        if genero and genero != 'Todos':
+            df_filtrado = df_filtrado[df_filtrado['gender'] == genero]
+
+        if estado_civil and estado_civil != 'Todos':
+            df_filtrado = df_filtrado[df_filtrado['marital_status'] == estado_civil]
+
+        if fumador == 'sí':
+            df_filtrado = df_filtrado[df_filtrado['smokes_per_day'] > 10]
+        elif fumador == 'no':
+            df_filtrado = df_filtrado[df_filtrado['smokes_per_day'] <= 10]
+
+        if bebedor == 'sí':
+            df_filtrado = df_filtrado[df_filtrado['drinks_per_week'] > 7]
+        elif bebedor == 'no':
+            df_filtrado = df_filtrado[df_filtrado['drinks_per_week'] <= 7]
+
+    tabla_html = df_filtrado.round(2).to_html(classes="table table-bordered table-striped table-hover", index=False)
+
+    return render_template(
+        'filtros.html',
+        tabla=tabla_html,
+        generos=generos,
+        estados_civiles=estados_civiles
+    )
+
 
 if __name__ == '__main__':
     app.run(debug=True)
