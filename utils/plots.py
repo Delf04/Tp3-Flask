@@ -21,15 +21,12 @@ DESCRIPCIONES_GRAFICOS = {
     "intentos_dejar_fumar_vs_apoyo_social.png": "Intentos de dejar de fumar según el nivel de apoyo social.",
 }
 DESCRIPCIONES_ANALISIS = {
-    'edad_inicio_fumar_vs_cigarrillos.png': 'Edad de inicio de fumar vs cigarrillos por día (promedio).',
-    'edad_inicio_beber_vs_alcohol.png': 'Edad de inicio de beber vs consumo de alcohol semanal (promedio).',
-    'salud_mental_vs_empleo.png': 'Mapa de calor entre estado de salud mental y estado laboral.',
-    'salud_mental_vs_estado_civil.png': 'Mapa de calor entre salud mental y estado civil.',
-    'sueno_vs_dieta.png': 'Boxplot de horas de sueño según calidad de dieta.',
-    'sueno_vs_cigarrillos.png': 'Dispersión de horas de sueño y cigarrillos por día.',
-    'sueno_vs_alcohol.png': 'Dispersión de horas de sueño y consumo de alcohol semanal.',
-    'intentos_dejar_fumar_vs_apoyo_social.png': 'Intentos de dejar de fumar según nivel de apoyo social.'
-}
+    'edad_inicio_fumar_vs_cigarrillos.png': 'Se observa una relación irregular entre la edad de inicio del hábito de fumar y la cantidad promedio de cigarrillos consumidos por día. No hay una tendencia clara, pero hay un leve descenso en el consumo entre los que comienzan a fumar entre los 15 y 20 años, con picos altos cerca de los extremos.',
+    'edad_inicio_beber_vs_alcohol.png': 'Al igual que el gráfico anterior, la relación es inestable. Sin embargo, se identifican picos en el consumo semanal de alcohol en quienes comenzaron a beber alrededor de los 14 y 35 años, lo que sugiere que tanto inicios muy tempranos como tardíos podrían asociarse con mayor consumo.',
+    'salud_mental_vs_empleo.png': 'El mapa de calor muestra que las personas con buena salud mental se concentran más en el empleo (colores más oscuros), mientras que aquellos con salud mental "pobre" tienen menor presencia en ese grupo. Los desempleados y estudiantes presentan valores más bajos, lo que podría indicar mayor prevalencia de problemas de salud mental.',
+    'salud_mental_vs_estado_civil.png': 'El estado civil también parece influir en la salud mental. Las personas casadas o en pareja muestran mejores indicadores de salud mental (valores más altos en la fila “Good”), mientras que los solteros y viudos presentan peores resultados, especialmente en la fila “Poor”, lo que sugiere vulnerabilidad en estas condiciones.',
+    'sueno_vs_dieta.png': 'El boxplot muestra que las personas con una dieta de calidad "Poor" o "Average" tienden a dormir ligeramente más que aquellas con dieta "Good". Esto podría sugerir que una buena alimentación no necesariamente implica más horas de sueño, o que quienes comen peor compensan con más descanso.',
+    }
 
 def generar_graficos_generales(df, output_dir):
     os.makedirs(output_dir, exist_ok=True)
@@ -179,45 +176,6 @@ def generar_graficos_analisis(df, output_dir):
     plt.close(fig)
     plot_files.append(path)
 
-    # Horas de sueño vs cigarrillos por semana (scatter)
-    fig, ax = plt.subplots(figsize=(6, 4))
-    sns.scatterplot(x='sleep_hours', y='smokes_per_day', data=df, ax=ax, color='blue', alpha=0.6)
-    ax.set_title('Horas de Sueño vs Cigarrillos por Día')
-    ax.set_xlabel('Horas de Sueño')
-    ax.set_ylabel('Cigarrillos por Día')
-    fig.tight_layout()
-    path = os.path.join(output_dir, 'sueno_vs_cigarrillos.png')
-    fig.savefig(path)
-    plt.close(fig)
-    plot_files.append(path)
 
-    # Horas de sueño vs alcohol por semana (scatter)
-    fig, ax = plt.subplots(figsize=(6, 4))
-    sns.scatterplot(x='sleep_hours', y='drinks_per_week', data=df, ax=ax, color='green', alpha=0.6)
-    ax.set_title('Horas de Sueño vs Alcohol por Semana')
-    ax.set_xlabel('Horas de Sueño')
-    ax.set_ylabel('Alcohol por Semana')
-    fig.tight_layout()
-    path = os.path.join(output_dir, 'sueno_vs_alcohol.png')
-    fig.savefig(path)
-    plt.close(fig)
-    plot_files.append(path)
-
-    # Boxplot adicional
-    fig, ax = plt.subplots(figsize=(6, 4))
-    sns.boxplot(
-        x='social_support',
-        y='attempts_to_quit_smoking',
-        data=df,
-        ax=ax,
-        palette='pastel'
-    )
-    ax.set_title('Intentos de dejar de fumar según Apoyo Social')
-    ax.tick_params(axis='x', rotation=30)
-    fig.tight_layout()
-    path = os.path.join(output_dir, 'intentos_dejar_fumar_vs_apoyo_social.png')
-    fig.savefig(path)
-    plt.close(fig)
-    plot_files.append(path)
 
     return plot_files
