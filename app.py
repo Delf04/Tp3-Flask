@@ -53,10 +53,20 @@ def dataset_completo():
     empleos = sorted(df['employment_status'].dropna().unique())
 
     df_filtrado = df.copy()
+    edad_min = 0
+    edad_max = 100
+    genero = 'Todos'
+    estado_civil = 'Todos'
+    fumador = ''
+    bebedor = ''
+    mental = 'Todos'
+    educacion = 'Todos'
+    empleo = 'Todos'
+    salud = ''
 
     if request.method == 'POST':
-        edad_min = max(0, min(int(request.form.get('edad_min', 0)), 120))
-        edad_max = max(0, min(int(request.form.get('edad_max', 120)), 120))
+        edad_min = max(0, min(int(request.form.get('edad_min', 0)), 100))
+        edad_max = max(0, min(int(request.form.get('edad_max', 100)), 100))
         genero = request.form.get('genero')
         estado_civil = request.form.get('estado_civil')
         fumador = request.form.get('fumador')
@@ -111,8 +121,19 @@ def dataset_completo():
         educaciones=educaciones,
         empleos=empleos,
         tabla_filtrada=tabla_filtrada,
-        tabla_completa=tabla_completa
+        tabla_completa=tabla_completa,
+        edad_min=edad_min,
+        edad_max=edad_max,
+        genero=genero,
+        estado_civil=estado_civil,
+        fumador=fumador,
+        bebedor=bebedor,
+        mental=mental,
+        educacion=educacion,
+        empleo=empleo,
+        salud=salud
     )
+
 
 
 @app.route("/graficos")
