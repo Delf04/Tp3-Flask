@@ -1,0 +1,50 @@
+/* Estilos para filtros organizados */
+.filter-row {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-label {
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+    color: #495057;
+}
+
+.filter-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-input-group input {
+    flex: 1;
+    text-align: center;
+}
+
+.filter-separator {
+    color: #6c757d;
+    font-weight: bold;
+}
+
+/* Estilos para las tarjetas */
+.card {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-title {
+    color: #495057;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+/* Ajustes responsivos */
+@media (max-width: 768px) {
+    .filter-input-group {
+        flex-direction: column;
+    }
+    
+    .filter-separator {
+        padding: 0.25rem 0;
+    }
+}

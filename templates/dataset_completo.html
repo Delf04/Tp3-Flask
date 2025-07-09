@@ -5,55 +5,109 @@
 {% block content %}
 <div class="container mt-4">
     <h2>Dataset Completo</h2>
-    
-    <form method="POST" class="row g-3 mb-4">
-        <!-- Filtros para variables numéricas -->
-        {% for col, (min_val, max_val) in rangos.items() %}
-        <div class="col-md-3">
-            <label class="form-label">{{ col }} mínimo</label>
-            <input type="number" name="{{ col }}_min" class="form-control" 
-                   min="{{ min_val }}" max="{{ max_val }}" 
-                   step="any" value="{{ filtros[col+'_min'] }}">
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">{{ col }} máximo</label>
-            <input type="number" name="{{ col }}_max" class="form-control" 
-                   min="{{ min_val }}" max="{{ max_val }}" 
-                   step="any" value="{{ filtros[col+'_max'] }}">
-        </div>
-        {% endfor %}
 
-        <!-- Filtros para variables categóricas -->
-        {% for col, opciones in categorias.items() %}
-        <div class="col-md-3">
-            <label class="form-label">{{ col }}</label>
-            <select name="{{ col }}" class="form-select">
-                <option value="Todos" {% if filtros[col] == 'Todos' %}selected{% endif %}>Todos</option>
-                {% for opcion in opciones %}
-                    <option value="{{ opcion }}" {% if filtros[col] == opcion %}selected{% endif %}>{{ opcion }}</option>
+    {% set traducciones = {
+        'name' : 'Nombre',
+        'id' : 'Id',
+        'country' : 'País',
+        'city' : 'Ciudad',
+        'age': 'Edad',
+        'gender': 'Género',
+        'smokes_per_day': 'Cigarrillos por día',
+        'drinks_per_week': 'Tragos por semana',
+        'age_started_smoking': 'Edad al empezar a fumar',
+        'age_started_drinking': 'Edad al empezar a beber',
+        'attempts_to_quit_smoking': 'Intentos para dejar de fumar',
+        'attempts_to_quit_drinking': 'Intentos para dejar de beber',
+        'has_health_issues': 'Problemas de salud',
+        'mental_health_status': 'Salud mental',
+        'social_support': 'Apoyo social',
+        'therapy_history': 'Historial de terapia',
+        'education_level': 'Nivel educativo',
+        'employment_status': 'Situación laboral',
+        'annual_income_usd': 'Ingreso anual (USD)',
+        'marital_status': 'Estado civil',
+        'children_count': 'Cantidad de hijos',
+        'exercise_frequency': 'Frecuencia de ejercicio',
+        'diet_quality': 'Calidad de la dieta',
+        'sleep_hours': 'Horas de sueño',
+        'bmi': 'Índice de masa corporal'
+    } %}
+
+    <form method="POST" class="mb-4">
+        <!-- Filtros numéricos en dos columnas -->
+        <div class="card p-3 mb-3">
+            <h5 class="card-title mb-3">Filtros numéricos</h5>
+            <div class="row">
+                <!-- Columna izquierda -->
+                <div class="col-md-6">
+                    {% for col in ['id', 'annual_income_usd', 'smokes_per_day', 'age_started_smoking', 'attempts_to_quit_smoking', 'sleep_hours'] %}
+                    <div class="filter-row mb-3">
+                        <label class="filter-label">{{ traducciones[col] }}</label>
+                        <div class="filter-input-group">
+                            <input type="number" name="{{ col }}_min" class="form-control" 
+                                   min="{{ rangos[col][0] }}" max="{{ rangos[col][1] }}" step="any" 
+                                   value="{{ filtros[col+'_min'] }}" placeholder="Mín: {{ rangos[col][0] }}">
+                            <span class="filter-separator">-</span>
+                            <input type="number" name="{{ col }}_max" class="form-control" 
+                                   min="{{ rangos[col][0] }}" max="{{ rangos[col][1] }}" step="any" 
+                                   value="{{ filtros[col+'_max'] }}" placeholder="Máx: {{ rangos[col][1] }}">
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Columna derecha -->
+                <div class="col-md-6">
+                    {% for col in ['age', 'children_count', 'drinks_per_week', 'age_started_drinking', 'attempts_to_quit_drinking', 'bmi'] %}
+                    <div class="filter-row mb-3">
+                        <label class="filter-label">{{ traducciones[col] }}</label>
+                        <div class="filter-input-group">
+                            <input type="number" name="{{ col }}_min" class="form-control" 
+                                   min="{{ rangos[col][0] }}" max="{{ rangos[col][1] }}" step="any" 
+                                   value="{{ filtros[col+'_min'] }}" placeholder="Mín: {{ rangos[col][0] }}">
+                            <span class="filter-separator">-</span>
+                            <input type="number" name="{{ col }}_max" class="form-control" 
+                                   min="{{ rangos[col][0] }}" max="{{ rangos[col][1] }}" step="any" 
+                                   value="{{ filtros[col+'_max'] }}" placeholder="Máx: {{ rangos[col][1] }}">
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros categóricos (mantenido igual) -->
+        <div class="card p-3 mb-3">
+            <h5 class="card-title">Filtros categóricos</h5>
+            <div class="row">
+                {% for col, opciones in categorias.items() %}
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">{{ traducciones[col] }}</label>
+                    <select name="{{ col }}" class="form-select">
+                        <option value="Todos" {% if filtros[col] == 'Todos' %}selected{% endif %}>Todos</option>
+                        {% for opcion in opciones %}
+                            <option value="{{ opcion }}" {% if filtros[col] == opcion %}selected{% endif %}>{{ opcion }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
                 {% endfor %}
-            </select>
+            </div>
         </div>
-        {% endfor %}
 
-        <div class="col-md-12">
-            <button type="submit" class="btn btn-primary">Filtrar</button>
+        <div class="text-end">
+            <button type="submit" class="btn btn-primary me-2">Filtrar</button>
             <a href="{{ url_for('dataset_completo') }}" class="btn btn-secondary">Resetear filtros</a>
         </div>
     </form>
 
+    <!-- Resto del contenido -->
     <hr>
     <h4>Resultados filtrados ({{ registros_filtrados }} de {{ total_registros }} registros)</h4>
     <div class="table-responsive">
         {{ tabla_filtrada | safe }}
     </div>
     
-    <hr class="my-4">
-    <h4>Dataset completo ({{ total_registros }} registros)</h4>
-    <div class="table-responsive">
-        {{ tabla_completa | safe }}
-    </div>
-
     <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Volver al Inicio</a>
 </div>
 {% endblock %}
