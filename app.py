@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect
 from models import db, Persona
 from utils.helpers import procesar_csv, leer_dataset, codificar_imagenes, entrenar_modelos
 from utils.plots import generar_graficos_generales, generar_graficos_analisis, DESCRIPCIONES_ANALISIS, DESCRIPCIONES_GRAFICOS
+from utils.helpers import filtrar_dataset
 import os
 import pandas as pd
 
@@ -41,98 +42,33 @@ def cargar_csv():
 
 @app.route('/dataset_completo', methods=['GET', 'POST'])
 def dataset_completo():
-    df = pd.read_csv('adicciones.csv')  
-
-    if df.empty:
-        return "No hay datos disponibles. Subí el CSV desde la página principal.", 400
-
-    generos = sorted(df['gender'].dropna().unique())
-    estados_civiles = sorted(df['marital_status'].dropna().unique())
-    salud_mental = sorted(df['mental_health_status'].dropna().unique())
-    educaciones = sorted(df['education_level'].dropna().unique())
-    empleos = sorted(df['employment_status'].dropna().unique())
-
-    df_filtrado = df.copy()
-    edad_min = 0
-    edad_max = 100
-    genero = 'Todos'
-    estado_civil = 'Todos'
-    fumador = ''
-    bebedor = ''
-    mental = 'Todos'
-    educacion = 'Todos'
-    empleo = 'Todos'
-    salud = ''
-
     if request.method == 'POST':
-        edad_min = max(0, min(int(request.form.get('edad_min', 0)), 100))
-        edad_max = max(0, min(int(request.form.get('edad_max', 100)), 100))
-        genero = request.form.get('genero')
-        estado_civil = request.form.get('estado_civil')
-        fumador = request.form.get('fumador')
-        bebedor = request.form.get('bebedor')
-        mental = request.form.get('salud_mental')
-        educacion = request.form.get('educacion')
-        empleo = request.form.get('empleo')
-        salud = request.form.get('salud')
+        df, df_filtrado, opciones, filtros = filtrar_dataset(request.form)
+    else:
+        df, df_filtrado, opciones, filtros = filtrar_dataset()
 
-        df_filtrado = df_filtrado[
-            (df_filtrado['age'] >= edad_min) & (df_filtrado['age'] <= edad_max)
-        ]
-
-        if genero and genero != 'Todos':
-            df_filtrado = df_filtrado[df_filtrado['gender'] == genero]
-
-        if estado_civil and estado_civil != 'Todos':
-            df_filtrado = df_filtrado[df_filtrado['marital_status'] == estado_civil]
-
-        if fumador == 'sí':
-            df_filtrado = df_filtrado[df_filtrado['smokes_per_day'] > 10]
-        elif fumador == 'no':
-            df_filtrado = df_filtrado[df_filtrado['smokes_per_day'] <= 10]
-
-        if bebedor == 'sí':
-            df_filtrado = df_filtrado[df_filtrado['drinks_per_week'] > 7]
-        elif bebedor == 'no':
-            df_filtrado = df_filtrado[df_filtrado['drinks_per_week'] <= 7]
-
-        if mental and mental != 'Todos':
-            df_filtrado = df_filtrado[df_filtrado['mental_health_status'] == mental]
-
-        if educacion and educacion != 'Todos':
-            df_filtrado = df_filtrado[df_filtrado['education_level'] == educacion]
-
-        if empleo and empleo != 'Todos':
-            df_filtrado = df_filtrado[df_filtrado['employment_status'] == empleo]
-
-        if salud == 'sí':
-            df_filtrado = df_filtrado[df_filtrado['has_health_issues'] == True]
-        elif salud == 'no':
-            df_filtrado = df_filtrado[df_filtrado['has_health_issues'] == False]
+    if df is None:
+        return "No hay datos disponibles. Subí el CSV desde la página principal.", 400
 
     tabla_filtrada = df_filtrado.round(2).to_html(classes="table table-bordered table-striped", index=False)
     tabla_completa = df.round(2).to_html(classes="table table-bordered table-striped", index=False)
 
-    return render_template(
-        'dataset_completo.html',
-        generos=generos,
-        estados_civiles=estados_civiles,
-        salud_mental=salud_mental,
-        educaciones=educaciones,
-        empleos=empleos,
-        tabla_filtrada=tabla_filtrada,
-        tabla_completa=tabla_completa,
-        edad_min=edad_min,
-        edad_max=edad_max,
-        genero=genero,
-        estado_civil=estado_civil,
-        fumador=fumador,
-        bebedor=bebedor,
-        mental=mental,
-        educacion=educacion,
-        empleo=empleo,
-        salud=salud
-    )
+    # Agregar conteos de registros
+    total_registros = len(df)
+    registros_filtrados = len(df_filtrado)
+
+    template_vars = {
+        'tabla_filtrada': tabla_filtrada,
+        'tabla_completa': tabla_completa,
+        'rangos': opciones['rangos'],
+        'categorias': opciones['categorias'],
+        'filtros': filtros,
+        'total_registros': total_registros,
+        'registros_filtrados': registros_filtrados
+    }
+
+    return render_template('dataset_completo.html', **template_vars)
+
 
 
 

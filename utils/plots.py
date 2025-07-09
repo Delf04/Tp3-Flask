@@ -177,5 +177,4 @@ def generar_graficos_analisis(df, output_dir):
     plot_files.append(path)
 
 
-
     return plot_files
