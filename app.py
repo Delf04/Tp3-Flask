@@ -71,7 +71,7 @@ def dataset_completo():
     salud = ''
 
     if request.method == 'POST':
-        edad_min = max(0, min(int(request.form.get('edad_min', 0)), 80))
+        edad_min = max(0, min(int(request.form.get('edad_min', 0)), ))
         edad_max = max(0, min(int(request.form.get('edad_max', 80)), 80))
         genero = request.form.get('genero')
         estado_civil = request.form.get('estado_civil')
@@ -155,7 +155,7 @@ def graficos():
 
 @app.route('/analisis_de_datos')
 def analisis_de_datos():
-    df = leer_dataset()  # Cargar siempre
+    df = leer_dataset()  
 
     estadisticas = {
         'Edad promedio': round(df['age'].mean(), 2),
