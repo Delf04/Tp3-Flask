@@ -4,22 +4,25 @@
 
 {% block head %}
     {{ super() }}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/analisistyle.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/graficostyle.css') }}">
 {% endblock %}
 
 {% block content %}
     <div class="container">
         <h1 class="titulo">Análisis de Datos</h1>
 
-        <p class="descripcion">
-            Esta sección está dedicada a la visualización de datos relacionados con el consumo de cigarrillos y alcohol. 
-            A través de distintos gráficos, se facilita la comparación entre ambos hábitos y se destacan patrones comunes 
-            en diferentes grupos de personas. También se consideran factores como la salud mental y el nivel de apoyo social, 
-            que influyen en el desarrollo o mantenimiento de conductas adictivas.
+        <p class="descripcion"> 
+            En esta sección se presentan diferentes variables mediante gráficos, lo que permite analizar y comparar patrones de comportamiento entre los grupos estudiados. 
+            La visualización de estos datos facilita la identificación de tendencias, relaciones y posibles factores asociados a los hábitos analizados.
         </p>
 
-        <div class="img">
-            <img class="img-fluid" src="data:image/png;base64,{{ plot_url }}" alt="Gráfico de análisis">
+        <div class="graficos-container">
+{% for grafico in plot_urls %}
+    <div class="grafico-item">
+        <img class="img-fluid" src="{{ grafico.url }}" alt="Gráfico de análisis">
+        <p class="grafico-descripcion">{{ grafico.descripcion }}</p>
+    </div>
+{% endfor %}
         </div>
 
         <div class="estadisticas">
@@ -35,5 +38,3 @@
         </div>
     </div>
 {% endblock %}
-
-

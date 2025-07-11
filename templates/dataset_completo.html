@@ -1,14 +1,168 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block title %}Dataset Completo{% endblock %}
 
 {% block content %}
-    <h1>Dataset Completo (desde CSV)</h1>
-    <p>Esta tabla muestra el contenido original del archivo cargado.</p>
-    
-    <div class="tabla">
-        {{ tabla_html | safe }}
-    </div>
+<div class="container mt-4">
+    <h2>Dataset Completo</h2>
 
+<form method="POST" class="row g-3 mb-4">
+    <div class="col-md-3">
+        <label class="form-label">Edad mínima</label>
+        <input type="number" name="edad_min" class="form-control" min="0" max="80" value="{{ edad_min }}">
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Edad máxima</label>
+        <input type="number" name="edad_max" class="form-control" min="0" max="80" value="{{ edad_max }}">
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Género</label>
+        <select name="genero" class="form-select">
+            <option {% if genero == 'Todos' %}selected{% endif %}>Todos</option>
+            {% for g in generos %}
+                <option value="{{ g }}" {% if genero == g %}selected{% endif %}>{{ g }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Estado civil</label>
+        <select name="estado_civil" class="form-select">
+            <option {% if estado_civil == 'Todos' %}selected{% endif %}>Todos</option>
+            {% for e in estados_civiles %}
+                <option value="{{ e }}" {% if estado_civil == e %}selected{% endif %}>{{ e }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">¿Fumador frecuente?</label>
+        <select name="fumador" class="form-select">
+            <option value="" {% if not fumador %}selected{% endif %}>Todos</option>
+            <option value="sí" {% if fumador == 'sí' %}selected{% endif %}>Sí</option>
+            <option value="no" {% if fumador == 'no' %}selected{% endif %}>No</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">¿Bebedor frecuente?</label>
+        <select name="bebedor" class="form-select">
+            <option value="" {% if not bebedor %}selected{% endif %}>Todos</option>
+            <option value="sí" {% if bebedor == 'sí' %}selected{% endif %}>Sí</option>
+            <option value="no" {% if bebedor == 'no' %}selected{% endif %}>No</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Salud mental</label>
+        <select name="salud_mental" class="form-select">
+            <option {% if mental == 'Todos' %}selected{% endif %}>Todos</option>
+            {% for val in salud_mental %}
+                <option value="{{ val }}" {% if mental == val %}selected{% endif %}>{{ val }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Nivel educativo</label>
+        <select name="educacion" class="form-select">
+            <option {% if educacion == 'Todos' %}selected{% endif %}>Todos</option>
+            {% for val in educaciones %}
+                <option value="{{ val }}" {% if educacion == val %}selected{% endif %}>{{ val }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Estado laboral</label>
+        <select name="empleo" class="form-select">
+            <option {% if empleo == 'Todos' %}selected{% endif %}>Todos</option>
+            {% for val in empleos %}
+                <option value="{{ val }}" {% if empleo == val %}selected{% endif %}>{{ val }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">¿Tiene problemas de salud?</label>
+        <select name="salud" class="form-select">
+            <option value="" {% if not salud %}selected{% endif %}>Todos</option>
+            <option value="sí" {% if salud == 'sí' %}selected{% endif %}>Sí</option>
+            <option value="no" {% if salud == 'no' %}selected{% endif %}>No</option>
+        </select>
+    </div>
+    <div class="col-md-12">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+    </div>
+</form>
+
+    <form method="POST" class="mb-4">
+        <!-- Filtros numéricos en dos columnas -->
+        <div class="card p-3 mb-3">
+            <h5 class="card-title mb-3">Filtros numéricos</h5>
+            <div class="row">
+                <!-- Columna izquierda -->
+                <div class="col-md-6">
+                    {% for col in ['id', 'annual_income_usd', 'smokes_per_day', 'age_started_smoking', 'attempts_to_quit_smoking', 'sleep_hours'] %}
+                    <div class="filter-row mb-3">
+                        <label class="filter-label">{{ traducciones[col] }}</label>
+                        <div class="filter-input-group">
+                            <input type="number" name="{{ col }}_min" class="form-control" 
+                                   min="{{ rangos[col][0] }}" max="{{ rangos[col][1] }}" step="any" 
+                                   value="{{ filtros[col+'_min'] }}" placeholder="Mín: {{ rangos[col][0] }}">
+                            <span class="filter-separator">-</span>
+                            <input type="number" name="{{ col }}_max" class="form-control" 
+                                   min="{{ rangos[col][0] }}" max="{{ rangos[col][1] }}" step="any" 
+                                   value="{{ filtros[col+'_max'] }}" placeholder="Máx: {{ rangos[col][1] }}">
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Columna derecha -->
+                <div class="col-md-6">
+                    {% for col in ['age', 'children_count', 'drinks_per_week', 'age_started_drinking', 'attempts_to_quit_drinking', 'bmi'] %}
+                    <div class="filter-row mb-3">
+                        <label class="filter-label">{{ traducciones[col] }}</label>
+                        <div class="filter-input-group">
+                            <input type="number" name="{{ col }}_min" class="form-control" 
+                                   min="{{ rangos[col][0] }}" max="{{ rangos[col][1] }}" step="any" 
+                                   value="{{ filtros[col+'_min'] }}" placeholder="Mín: {{ rangos[col][0] }}">
+                            <span class="filter-separator">-</span>
+                            <input type="number" name="{{ col }}_max" class="form-control" 
+                                   min="{{ rangos[col][0] }}" max="{{ rangos[col][1] }}" step="any" 
+                                   value="{{ filtros[col+'_max'] }}" placeholder="Máx: {{ rangos[col][1] }}">
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros categóricos (mantenido igual) -->
+        <div class="card p-3 mb-3">
+            <h5 class="card-title">Filtros categóricos</h5>
+            <div class="row">
+                {% for col, opciones in categorias.items() %}
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">{{ traducciones[col] }}</label>
+                    <select name="{{ col }}" class="form-select">
+                        <option value="Todos" {% if filtros[col] == 'Todos' %}selected{% endif %}>Todos</option>
+                        {% for opcion in opciones %}
+                            <option value="{{ opcion }}" {% if filtros[col] == opcion %}selected{% endif %}>{{ opcion }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="text-end">
+            <button type="submit" class="btn btn-primary me-2">Filtrar</button>
+            <a href="{{ url_for('dataset_completo') }}" class="btn btn-secondary">Resetear filtros</a>
+        </div>
+    </form>
+
+    <!-- Resto del contenido -->
+    <hr>
+    <h4>Resultados filtrados ({{ registros_filtrados }} de {{ total_registros }} registros)</h4>
+    <div class="table-responsive">
+        {{ tabla_filtrada | safe }}
+    </div>
+    
     <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Volver al Inicio</a>
+</div>
 {% endblock %}

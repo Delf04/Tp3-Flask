@@ -1,168 +1,161 @@
 from flask import Flask, render_template, request, redirect
-from flask_sqlalchemy import SQLAlchemy
-import pandas as pd
-import matplotlib.pyplot as plt
-import base64
-import seaborn as sns
-from io import BytesIO
-import csv
+from models import db, Persona
+from utils.helpers import procesar_csv, leer_dataset, codificar_imagenes, entrenar_modelos
+from utils.plots import generar_graficos_generales, generar_graficos_analisis, DESCRIPCIONES_ANALISIS, DESCRIPCIONES_GRAFICOS
 import os
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import accuracy_score
-import numpy as np
+import pandas as pd
+from flask import url_for
 
-
-# Configuración inicial
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-db = SQLAlchemy(app)
-
+db.init_app(app)
 
 os.makedirs('plots', exist_ok=True)
-
-def generate_figure():
-    df = pd.read_csv('adicciones.csv')  
-    return df
-
-class Persona(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    age = db.Column(db.Integer)
-    gender = db.Column(db.String(20))
-    smokes_per_day = db.Column(db.Integer)
-    drinks_per_week = db.Column(db.Integer)
-    age_started_smoking = db.Column(db.Integer)
-    age_started_drinking = db.Column(db.Integer)
-    attempts_to_quit_smoking = db.Column(db.Integer)
-    attempts_to_quit_drinking = db.Column(db.Integer)
-    has_health_issues = db.Column(db.Boolean)
-    mental_health_status = db.Column(db.String(50))
-    social_support = db.Column(db.String(50))
-    therapy_history = db.Column(db.String(50))
-
 inicializado = False
-modelo_fumador = None
-modelo_tomador = None
-encoder_gender = None
-encoder_mental = None
-
+modelos = {}
 
 @app.before_request
-def limpiar_una_vez():
+def inicializar():
     global inicializado
     if not inicializado:
-        db.create_all()
-        db.session.query(Persona).delete()
-        db.session.commit()
+        with app.app_context():
+            db.create_all()
+            db.session.query(Persona).delete()
+            db.session.commit()
         inicializado = True
 
+
+
 @app.route('/')
-def index(limit=15):
-    personas = Persona.query.limit(limit).all()
-    datos_cargados = len(personas) > 0
-    return render_template('index.html', personas=personas, datos_cargados=datos_cargados)
+def index():
+    personas = Persona.query.limit(15).all()
+    return render_template('index.html', personas=personas, datos_cargados=len(personas) > 0)
+
+
 
 @app.route('/cargar', methods=['POST'])
 def cargar_csv():
     file = request.files['file']
     if file and file.filename == 'adicciones.csv':
-        stream = file.stream.read().decode('utf-8').splitlines()
-        reader = csv.DictReader(stream)
-        personas_a_agregar = []
-        for row in reader:
-            try:
-                persona = Persona(
-                    id=int(row['id']),
-                    age=int(row['age']),
-                    gender=row['gender'],
-                    smokes_per_day=int(row['smokes_per_day']),
-                    drinks_per_week=int(row['drinks_per_week']),
-                    age_started_smoking=int(row['age_started_smoking']),
-                    age_started_drinking=int(row['age_started_drinking']),
-                    attempts_to_quit_smoking=int(row['attempts_to_quit_smoking']),
-                    attempts_to_quit_drinking=int(row['attempts_to_quit_drinking']),
-                    has_health_issues=row['has_health_issues'].lower() == 'true',
-                    mental_health_status=row['mental_health_status'],
-                    social_support=row['social_support'],
-                    therapy_history=row['therapy_history']
-                )
-                personas_a_agregar.append(persona)
-            except Exception as e:
-                print(f"Error al procesar fila: {row.get('id', 'sin id')} -> {e}")
-
-        # Inserta todas las personas en una sola transacción
-        db.session.bulk_save_objects(personas_a_agregar)
-        db.session.commit()
-
-        global modelo_fumador, modelo_tomador, encoder_gender, encoder_mental
-        modelo_fumador, modelo_tomador, encoder_gender, encoder_mental = entrenar_modelos()
-
+        procesar_csv(file)  
+        global modelos
+        modelos = entrenar_modelos()
         return redirect('/')
-    else:
-        return "El archivo debe llamarse exactamente 'adicciones.csv'", 400        
+    return "El archivo debe llamarse exactamente 'adicciones.csv'", 
 
-@app.route('/dataset_completo')
+
+
+@app.route('/dataset_completo', methods=['GET', 'POST'])
 def dataset_completo():
     df = pd.read_csv('adicciones.csv')  
-    tabla_html = df.to_html(classes='table table-bordered table-striped', index=False)
-    return render_template('dataset_completo.html', tabla_html=tabla_html)
+
+    if df.empty:
+        return "No hay datos disponibles. Subí el CSV desde la página principal.", 400
+
+    generos = sorted(df['gender'].dropna().unique())
+    estados_civiles = sorted(df['marital_status'].dropna().unique())
+    salud_mental = sorted(df['mental_health_status'].dropna().unique())
+    educaciones = sorted(df['education_level'].dropna().unique())
+    empleos = sorted(df['employment_status'].dropna().unique())
+
+    df_filtrado = df.copy()
+    edad_min = 0
+    edad_max = 100
+    genero = 'Todos'
+    estado_civil = 'Todos'
+    fumador = ''
+    bebedor = ''
+    mental = 'Todos'
+    educacion = 'Todos'
+    empleo = 'Todos'
+    salud = ''
+
+    if request.method == 'POST':
+        edad_min = max(0, min(int(request.form.get('edad_min', 0)), ))
+        edad_max = max(0, min(int(request.form.get('edad_max', 80)), 80))
+        genero = request.form.get('genero')
+        estado_civil = request.form.get('estado_civil')
+        fumador = request.form.get('fumador')
+        bebedor = request.form.get('bebedor')
+        mental = request.form.get('salud_mental')
+        educacion = request.form.get('educacion')
+        empleo = request.form.get('empleo')
+        salud = request.form.get('salud')
+
+        df_filtrado = df_filtrado[
+            (df_filtrado['age'] >= edad_min) & (df_filtrado['age'] <= edad_max)
+        ]
+
+        if genero and genero != 'Todos':
+            df_filtrado = df_filtrado[df_filtrado['gender'] == genero]
+
+        if estado_civil and estado_civil != 'Todos':
+            df_filtrado = df_filtrado[df_filtrado['marital_status'] == estado_civil]
+
+        if fumador == 'sí':
+            df_filtrado = df_filtrado[df_filtrado['smokes_per_day'] > 10]
+        elif fumador == 'no':
+            df_filtrado = df_filtrado[df_filtrado['smokes_per_day'] <= 10]
+
+        if bebedor == 'sí':
+            df_filtrado = df_filtrado[df_filtrado['drinks_per_week'] > 7]
+        elif bebedor == 'no':
+            df_filtrado = df_filtrado[df_filtrado['drinks_per_week'] <= 7]
+
+        if mental and mental != 'Todos':
+            df_filtrado = df_filtrado[df_filtrado['mental_health_status'] == mental]
+
+        if educacion and educacion != 'Todos':
+            df_filtrado = df_filtrado[df_filtrado['education_level'] == educacion]
+
+        if empleo and empleo != 'Todos':
+            df_filtrado = df_filtrado[df_filtrado['employment_status'] == empleo]
+
+        if salud == 'sí':
+            df_filtrado = df_filtrado[df_filtrado['has_health_issues'] == True]
+        elif salud == 'no':
+            df_filtrado = df_filtrado[df_filtrado['has_health_issues'] == False]
+
+    tabla_filtrada = df_filtrado.round(2).to_html(classes="table table-bordered table-striped", index=False)
+    tabla_completa = df.round(2).to_html(classes="table table-bordered table-striped", index=False)
+    return render_template(
+        'dataset_completo.html',
+        generos=generos,
+        estados_civiles=estados_civiles,
+        salud_mental=salud_mental,
+        educaciones=educaciones,
+        empleos=empleos,
+        tabla_filtrada=tabla_filtrada,
+        tabla_completa=tabla_completa,
+        edad_min=edad_min,
+        edad_max=edad_max,
+        genero=genero,
+        estado_civil=estado_civil,
+        fumador=fumador,
+        bebedor=bebedor,
+        mental=mental,
+        educacion=educacion,
+        empleo=empleo,
+        salud=salud
+    )
 
 
 
-# Ruta para gráficos
-@app.route('/graficos')
+@app.route("/graficos")
 def graficos():
-    df = pd.read_sql(db.session.query(Persona).statement, db.engine)
-    fig, axes = plt.subplots(6, 2, figsize=(18, 30))
-    plt.subplots_adjust(hspace=0.5, wspace=0.3)
+    df = leer_dataset()
+    if df.empty:
+        return render_template("graficos.html", plot_urls=[])
 
-    # 1. Edad de inicio al fumar
-    sns.histplot(df['age_started_smoking'].dropna(), bins=15, ax=axes[0, 1], color='orange')
-    axes[0, 1].set_title('Edad de inicio al fumar')
-
-    # 2. Edad de inicio al beber alcohol
-    sns.histplot(df['age_started_drinking'].dropna(), bins=15, ax=axes[1, 0], color='green')
-    axes[1, 0].set_title('Edad de inicio al beber alcohol')
-
-    # 3. Intentos de dejar de tomar
-    sns.countplot(x='attempts_to_quit_drinking', data=df, ax=axes[2, 0], palette='Purples')
-    axes[2, 0].set_title('Intentos de dejar de tomar')
-
-    # 4. Distribución de género
-    sns.countplot(x='gender', data=df, ax=axes[3, 0], palette='Set2')
-    axes[3, 0].set_title('Distribución de Género')
-
-    # 5. Relación entre edad y consumo de alcohol
-    sns.scatterplot(x='age', y='drinks_per_week', data=df, ax=axes[4, 0], alpha=0.6)
-    axes[4, 0].set_title('Edad vs Consumo de Alcohol por Semana')
-
-    # 6. Distribución de personas con problemas de salud
-    sns.countplot(x='has_health_issues', data=df, ax=axes[4, 1], palette='Set1')
-    axes[4, 1].set_title('Distribución de Problemas de Salud')
-
-    # 7. Relación entre cigarrillos y alcohol
-    sns.scatterplot(x='smokes_per_day', y='drinks_per_week', data=df, ax=axes[5, 1], alpha=0.6)
-    axes[5, 1].set_title('Cigarrillos por día vs Alcohol por semana')
-
-    # Guardar imagen
-    img = BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-    plot_url = base64.b64encode(img.getvalue()).decode()
-    plt.savefig('plots/graficos.png')
-    plt.close()
-
-    with open("plots/graficos.png", "rb") as image_file:
-        plot_url = base64.b64encode(image_file.read()).decode()
-
-    return render_template('graficos.html', plot_url=plot_url)
+    output_dir = "static/graficos"
+    plot_files = generar_graficos_generales(df, output_dir)
+    plot_urls = codificar_imagenes(plot_files, DESCRIPCIONES_GRAFICOS) 
+    return render_template("graficos.html", plot_urls=plot_urls)
 
 
-# Ruta para análisis
 @app.route('/analisis_de_datos')
 def analisis_de_datos():
-    df = pd.read_sql(db.session.query(Persona).statement, db.engine)
+    df = leer_dataset()  
 
     estadisticas = {
         'Edad promedio': round(df['age'].mean(), 2),
@@ -172,128 +165,60 @@ def analisis_de_datos():
         'Alcohol promedio': round(df['drinks_per_week'].mean(), 2),
     }
 
-    # Gráficos para análisis de patrones 
-    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
-    plt.subplots_adjust(hspace=0.4, wspace=0.3)
+    plot_files = generar_graficos_analisis(df, 'static/graficos')
 
-    # 1. Relación entre edad de inicio de fumar y cantidad de cigarrillos por día
-    sns.scatterplot(
-        x='age_started_smoking', y='smokes_per_day', data=df, ax=axes[0, 0], alpha=0.6, color='teal'
-    )
-    axes[0, 0].set_title('Edad de inicio de fumar vs Cigarrillos por día')
-
-    # 2. Relación entre edad de inicio de beber y consumo de alcohol semanal
-    sns.scatterplot(
-        x='age_started_drinking', y='drinks_per_week', data=df, ax=axes[0, 1], alpha=0.6, color='purple'
-    )
-    axes[0, 1].set_title('Edad de inicio de beber vs Alcohol por semana')
-
-    # 3. Boxplot de intentos de dejar de fumar según apoyo social
-    sns.boxplot(
-        x='social_support', y='attempts_to_quit_smoking', data=df, ax=axes[1, 0], palette='pastel'
-    )
-    axes[1, 0].set_title('Intentos de dejar de fumar según Apoyo Social')
-    axes[1, 0].tick_params(axis='x', rotation=30)
-
-    plt.tight_layout()
-    plt.savefig('plots/analisis.png')
-    plt.close()
-
-    with open("plots/analisis.png", "rb") as image_file:
-        plot_url = base64.b64encode(image_file.read()).decode()
-
+    plot_urls = [
+        {'url': url_for('static', filename=f"graficos/{os.path.basename(f)}"), 
+         'descripcion': DESCRIPCIONES_ANALISIS.get(os.path.basename(f), '')}
+        for f in plot_files
+    ]
     resumen_tabla = df[['age', 'smokes_per_day', 'drinks_per_week']].describe().round(2).to_html(classes="table table-striped")
+    return render_template('analisis_de_datos.html', plot_urls=plot_urls, resumen_tabla=resumen_tabla, estadisticas=estadisticas)
 
-    return render_template('analisis_de_datos.html', plot_url=plot_url, resumen_tabla=resumen_tabla, estadisticas=estadisticas)
-
-
-def entrenar_modelos():
-    df = pd.read_sql(db.session.query(Persona).statement, db.engine)
-
-    if df.empty:
-        print("No hay datos para entrenar los modelos.")
-        return None, None, None, None
-
-    # Variables objetivo
-    df['es_fumador_frecuente'] = df['smokes_per_day'] > 10
-    df['es_tomador_frecuente'] = df['drinks_per_week'] > 7  
-
-    # Variables seleccionadas
-    features = ['age', 'gender', 'smokes_per_day', 'age_started_smoking',
-                'attempts_to_quit_smoking', 'has_health_issues', 'mental_health_status']
-
-    X_fumador = df[features].copy()
-    y_fumador = df['es_fumador_frecuente'].astype(int)
-
-    features_tomador = ['age', 'gender', 'smokes_per_day', 'age_started_drinking',
-                       'attempts_to_quit_drinking', 'has_health_issues', 'mental_health_status']
-    X_tomador = df[features_tomador].copy()
-    y_tomador = df['es_tomador_frecuente'].astype(int)
-
-    le_gender = LabelEncoder()
-    X_fumador['gender'] = le_gender.fit_transform(X_fumador['gender'])
-    X_tomador['gender'] = le_gender.transform(X_tomador['gender'])
-
-    le_mental = LabelEncoder()
-    X_fumador['mental_health_status'] = le_mental.fit_transform(X_fumador['mental_health_status'])
-    X_tomador['mental_health_status'] = le_mental.transform(X_tomador['mental_health_status'])
-
-    X_fumador['has_health_issues'] = X_fumador['has_health_issues'].astype(int)
-    X_tomador['has_health_issues'] = X_tomador['has_health_issues'].astype(int)
-
-    modelo_fumador = LogisticRegression(max_iter=1000)
-    modelo_fumador.fit(X_fumador, y_fumador)
-
-    modelo_tomador = LogisticRegression(max_iter=1000)
-    modelo_tomador.fit(X_tomador, y_tomador)
-
-    return modelo_fumador, modelo_tomador, le_gender, le_mental
 
 
 
 @app.route('/predict', methods=['GET', 'POST'])
 def predict():
-    if modelo_fumador is None or modelo_tomador is None:
+    if not modelos:
         return "Modelos no disponibles. Cargá el archivo CSV primero desde la página principal.", 400
+
     if request.method == 'POST':
         try:
-            age = int(request.form['age'])
-            gender = request.form['gender']
-            smokes_per_day = int(request.form['smokes_per_day'])
-            drinks_per_week = int(request.form['drinks_per_week'])
-            age_started_smoking = int(request.form['age_started_smoking'])
-            age_started_drinking = int(request.form['age_started_drinking'])
-            attempts_to_quit_smoking = int(request.form['attempts_to_quit_smoking'])
-            attempts_to_quit_drinking = int(request.form['attempts_to_quit_drinking'])
-            has_health_issues = request.form['has_health_issues'] == 'true'
-            mental_health_status = request.form['mental_health_status']
+            datos = {
+                'age': request.form['age'],
+                'gender': request.form['gender'],
+                'smokes_per_day': request.form['smokes_per_day'],
+                'drinks_per_week': request.form['drinks_per_week'],
+                'age_started_smoking': request.form['age_started_smoking'],
+                'age_started_drinking': request.form['age_started_drinking'],
+                'attempts_to_quit_smoking': request.form['attempts_to_quit_smoking'],
+                'attempts_to_quit_drinking': request.form['attempts_to_quit_drinking'],
+                'has_health_issues': request.form['has_health_issues'],
+                'mental_health_status': request.form['mental_health_status'],
+                'social_support': request.form['social_support'],
+                'therapy_history': request.form['therapy_history'],
+                'education_level': request.form['education_level'],
+                'employment_status': request.form['employment_status'],
+                'annual_income_usd': request.form['annual_income_usd'],
+                'marital_status': request.form['marital_status'],
+                'children_count': request.form['children_count'],
+                'exercise_frequency': request.form['exercise_frequency'],
+                'diet_quality': request.form['diet_quality'],
+                'sleep_hours': request.form['sleep_hours'],
+                'bmi': request.form['bmi']
+            }
 
-            gender_encoded = encoder_gender.transform([gender])[0]
-            mental_encoded = encoder_mental.transform([mental_health_status])[0]
-
-            # Datos para modelo de fumador
-            input_fumador = np.array([[age, gender_encoded, smokes_per_day,
-                                    age_started_smoking, attempts_to_quit_smoking,
-                                    int(has_health_issues), mental_encoded]])
-
-            # Datos para modelo de tomador
-            input_tomador = np.array([[age, gender_encoded, smokes_per_day,
-                                      age_started_drinking, attempts_to_quit_drinking,
-                                      int(has_health_issues), mental_encoded]])
-
-            prob_fumador = modelo_fumador.predict_proba(input_fumador)[0][1]
-            prob_tomador = modelo_tomador.predict_proba(input_tomador)[0][1]
-
-            return render_template('resultado_prediccion.html',
-                                   prob_fumador=round(prob_fumador * 100, 2),
-                                   prob_tomador=round(prob_tomador * 100, 2))
+            resultado = modelos['predecir'](datos)
+            return render_template('resultado_prediccion.html', **resultado)
 
         except Exception as e:
-            return f"Error en predicción: {e}"
+            return f"Error en predicción: {e}", 500
 
     return render_template('form_prediccion.html')
-    
 
-if __name__ == "__main__":
+
+
+
+if __name__ == '__main__':
     app.run(debug=True)
-
