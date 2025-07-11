@@ -173,3 +173,70 @@ def entrenar_modelos():
         'encoders': encoders,
         'predecir': predecir
     }
+
+def filtrar_dataset(form=None):
+    df = pd.read_csv('adicciones.csv')
+
+    if df.empty:
+        return None, None, {}, {}
+
+    # Identificar columnas numéricas y categóricas
+    numeric_cols = df.select_dtypes(include=['int64', 'float64']).columns
+    categorical_cols = df.select_dtypes(include=['object', 'bool']).columns
+
+    # Rangos para variables numéricas
+    rangos = {
+        col: (df[col].min(), df[col].max())
+        for col in numeric_cols
+    }
+
+    # Opciones para variables categóricas
+    categorias = {
+        col: sorted(df[col].astype(str).dropna().unique().tolist())
+        for col in categorical_cols
+    }
+
+    # Valores por defecto de los filtros
+    filtros = {}
+
+    # Rellenar filtros numéricos
+    for col in numeric_cols:
+        filtros[f'{col}_min'] = rangos[col][0]
+        filtros[f'{col}_max'] = rangos[col][1]
+
+    # Rellenar filtros categóricos
+    for col in categorical_cols:
+        filtros[col] = 'Todos'
+
+    df_filtrado = df.copy()
+
+    # Aplicar filtros si se envió el formulario
+    if form:
+        # Filtrar variables numéricas
+        for col in numeric_cols:
+            try:
+                min_val = float(form.get(f'{col}_min', rangos[col][0]))
+                max_val = float(form.get(f'{col}_max', rangos[col][1]))
+                filtros[f'{col}_min'] = min_val
+                filtros[f'{col}_max'] = max_val
+                df_filtrado = df_filtrado[(df_filtrado[col] >= min_val) & (df_filtrado[col] <= max_val)]
+            except ValueError:
+                pass
+
+        # Filtrar variables categóricas
+        for col in categorical_cols:
+            valor = form.get(col, 'Todos')
+            filtros[col] = valor
+            if valor != 'Todos':
+                if df[col].dtype == 'bool':
+                    bool_val = valor.lower() == 'true'
+                    df_filtrado = df_filtrado[df_filtrado[col] == bool_val]
+                else:
+                    df_filtrado = df_filtrado[df_filtrado[col].astype(str) == valor]
+
+    opciones = {
+        'rangos': rangos,
+        'categorias': categorias
+    }
+
+    return df, df_filtrado, opciones, filtros

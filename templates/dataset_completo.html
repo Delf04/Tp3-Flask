@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 
-{% block title %}Dataset{% endblock %}
+{% block title %}Dataset Completo{% endblock %}
 
 {% block content %}
-<h2>Dataset completo</h2>
+<div class="container mt-4">
+    <h2>Dataset Completo</h2>
 
 <form method="POST" class="row g-3 mb-4">
     <div class="col-md-3">
@@ -88,15 +89,80 @@
     </div>
 </form>
 
+    <form method="POST" class="mb-4">
+        <!-- Filtros numéricos en dos columnas -->
+        <div class="card p-3 mb-3">
+            <h5 class="card-title mb-3">Filtros numéricos</h5>
+            <div class="row">
+                <!-- Columna izquierda -->
+                <div class="col-md-6">
+                    {% for col in ['id', 'annual_income_usd', 'smokes_per_day', 'age_started_smoking', 'attempts_to_quit_smoking', 'sleep_hours'] %}
+                    <div class="filter-row mb-3">
+                        <label class="filter-label">{{ traducciones[col] }}</label>
+                        <div class="filter-input-group">
+                            <input type="number" name="{{ col }}_min" class="form-control" 
+                                   min="{{ rangos[col][0] }}" max="{{ rangos[col][1] }}" step="any" 
+                                   value="{{ filtros[col+'_min'] }}" placeholder="Mín: {{ rangos[col][0] }}">
+                            <span class="filter-separator">-</span>
+                            <input type="number" name="{{ col }}_max" class="form-control" 
+                                   min="{{ rangos[col][0] }}" max="{{ rangos[col][1] }}" step="any" 
+                                   value="{{ filtros[col+'_max'] }}" placeholder="Máx: {{ rangos[col][1] }}">
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Columna derecha -->
+                <div class="col-md-6">
+                    {% for col in ['age', 'children_count', 'drinks_per_week', 'age_started_drinking', 'attempts_to_quit_drinking', 'bmi'] %}
+                    <div class="filter-row mb-3">
+                        <label class="filter-label">{{ traducciones[col] }}</label>
+                        <div class="filter-input-group">
+                            <input type="number" name="{{ col }}_min" class="form-control" 
+                                   min="{{ rangos[col][0] }}" max="{{ rangos[col][1] }}" step="any" 
+                                   value="{{ filtros[col+'_min'] }}" placeholder="Mín: {{ rangos[col][0] }}">
+                            <span class="filter-separator">-</span>
+                            <input type="number" name="{{ col }}_max" class="form-control" 
+                                   min="{{ rangos[col][0] }}" max="{{ rangos[col][1] }}" step="any" 
+                                   value="{{ filtros[col+'_max'] }}" placeholder="Máx: {{ rangos[col][1] }}">
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
 
-<hr>
-<h4>Filtrado</h4>
-<div class="table-responsive">
-    {{ tabla_filtrada | safe }}
+        <!-- Filtros categóricos (mantenido igual) -->
+        <div class="card p-3 mb-3">
+            <h5 class="card-title">Filtros categóricos</h5>
+            <div class="row">
+                {% for col, opciones in categorias.items() %}
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">{{ traducciones[col] }}</label>
+                    <select name="{{ col }}" class="form-select">
+                        <option value="Todos" {% if filtros[col] == 'Todos' %}selected{% endif %}>Todos</option>
+                        {% for opcion in opciones %}
+                            <option value="{{ opcion }}" {% if filtros[col] == opcion %}selected{% endif %}>{{ opcion }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="text-end">
+            <button type="submit" class="btn btn-primary me-2">Filtrar</button>
+            <a href="{{ url_for('dataset_completo') }}" class="btn btn-secondary">Resetear filtros</a>
+        </div>
+    </form>
+
+    <!-- Resto del contenido -->
+    <hr>
+    <h4>Resultados filtrados ({{ registros_filtrados }} de {{ total_registros }} registros)</h4>
+    <div class="table-responsive">
+        {{ tabla_filtrada | safe }}
+    </div>
+    
+    <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Volver al Inicio</a>
 </div>
-<hr class="my-4">
-
-
-<a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Volver al Inicio</a>
-
 {% endblock %}
