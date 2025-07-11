@@ -4,6 +4,7 @@ from utils.helpers import procesar_csv, leer_dataset, codificar_imagenes, entren
 from utils.plots import generar_graficos_generales, generar_graficos_analisis, DESCRIPCIONES_ANALISIS, DESCRIPCIONES_GRAFICOS
 import os
 import pandas as pd
+from flask import url_for
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
@@ -23,10 +24,14 @@ def inicializar():
             db.session.commit()
         inicializado = True
 
+
+
 @app.route('/')
 def index():
     personas = Persona.query.limit(15).all()
     return render_template('index.html', personas=personas, datos_cargados=len(personas) > 0)
+
+
 
 @app.route('/cargar', methods=['POST'])
 def cargar_csv():
@@ -37,6 +42,7 @@ def cargar_csv():
         modelos = entrenar_modelos()
         return redirect('/')
     return "El archivo debe llamarse exactamente 'adicciones.csv'", 
+
 
 
 @app.route('/dataset_completo', methods=['GET', 'POST'])
@@ -65,8 +71,8 @@ def dataset_completo():
     salud = ''
 
     if request.method == 'POST':
-        edad_min = max(0, min(int(request.form.get('edad_min', 0)), 100))
-        edad_max = max(0, min(int(request.form.get('edad_max', 100)), 100))
+        edad_min = max(0, min(int(request.form.get('edad_min', 0)), 80))
+        edad_max = max(0, min(int(request.form.get('edad_max', 80)), 80))
         genero = request.form.get('genero')
         estado_civil = request.form.get('estado_civil')
         fumador = request.form.get('fumador')
@@ -112,7 +118,6 @@ def dataset_completo():
 
     tabla_filtrada = df_filtrado.round(2).to_html(classes="table table-bordered table-striped", index=False)
     tabla_completa = df.round(2).to_html(classes="table table-bordered table-striped", index=False)
-
     return render_template(
         'dataset_completo.html',
         generos=generos,
@@ -144,13 +149,14 @@ def graficos():
 
     output_dir = "static/graficos"
     plot_files = generar_graficos_generales(df, output_dir)
-    plot_urls = codificar_imagenes(plot_files, DESCRIPCIONES_GRAFICOS)  # <-- Aquí el diccionario ANALISIS
+    plot_urls = codificar_imagenes(plot_files, DESCRIPCIONES_GRAFICOS) 
     return render_template("graficos.html", plot_urls=plot_urls)
 
 
 @app.route('/analisis_de_datos')
 def analisis_de_datos():
-    df = leer_dataset()
+    df = leer_dataset()  # Cargar siempre
+
     estadisticas = {
         'Edad promedio': round(df['age'].mean(), 2),
         'Edad máxima': df['age'].max(),
@@ -158,10 +164,19 @@ def analisis_de_datos():
         'Cigarrillos promedio': round(df['smokes_per_day'].mean(), 2),
         'Alcohol promedio': round(df['drinks_per_week'].mean(), 2),
     }
-    plot_files = generar_graficos_analisis(df, 'plots')
-    plot_urls = codificar_imagenes(plot_files, DESCRIPCIONES_ANALISIS) 
+
+    plot_files = generar_graficos_analisis(df, 'static/graficos')
+
+    plot_urls = [
+        {'url': url_for('static', filename=f"graficos/{os.path.basename(f)}"), 
+         'descripcion': DESCRIPCIONES_ANALISIS.get(os.path.basename(f), '')}
+        for f in plot_files
+    ]
     resumen_tabla = df[['age', 'smokes_per_day', 'drinks_per_week']].describe().round(2).to_html(classes="table table-striped")
     return render_template('analisis_de_datos.html', plot_urls=plot_urls, resumen_tabla=resumen_tabla, estadisticas=estadisticas)
+
+
+
 
 @app.route('/predict', methods=['GET', 'POST'])
 def predict():
